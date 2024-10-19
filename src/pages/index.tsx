@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import { Button, Paper, TextField, Typography } from "@mui/material";
+import io from 'socket.io-client';
 
 export default function Login() {
-  const [visitorName, setVisitorName] = useState("");
+  const [visitorName, setVisitorName] = useState("")
 
   useEffect(()=> {
     console.log ('visitor Name changed:', visitorName)
@@ -11,11 +12,11 @@ export default function Login() {
 
   const handleLogin = () => {
     if (visitorName === "00119922") {
-      window.location.href = "/stall";
+      window.location.href = "/stall"
     } else {
-      alert("Incorrect visitor name!");
+      alert("Incorrect visitor name!")
     }
-  };
+  }
 
   return (
     <Box

@@ -1,37 +1,39 @@
-import { doc, getDoc, onSnapshot } from "firebase/firestore"
-import { db } from "../firebase"
-import { Dispatch, SetStateAction } from "react";
+import { StallConstants } from "@/const/stall.const";
 
-export async function getStallActivity() {
-  try {
-    // Reference to the document with ID '1' in the 'stallActivity' collection
-    const docRef = doc(db, "stallActivity", "1");
-    const docSnap = await getDoc(docRef);
+export type ItemType = "key" | "shield" | "compass";
+export type PowerType = "wealth" | "gear" | "heart" | "health"; // Include all possible powers
 
-    if (docSnap.exists())
-        return docSnap.data()
+export const getItemPowerDescription = (selectedItem: ItemType, selectedPower: PowerType): string => {
+  // Check if the selectedItem exists in the StallConstants itemPowerDescription object
+  const itemDescription = StallConstants.itemPowerDescription[selectedItem];
+  
+  if (itemDescription) {
+    if (selectedPower in itemDescription)
+      return itemDescription[selectedPower as keyof typeof itemDescription]
     else
-      console.log("No such document found!");
+      return "No description available for this power and item combination."
   } 
-  catch (error) {
-    console.error("Error fetching document:", error);
-  }
+  else
+    return "No description available for this item."
 }
 
-export function listenToStallActivity (setVisitorStatus: Dispatch<SetStateAction<string>>) {
-    const docRef = doc(db, "stallActivity", "1");
+export const getItemPowerPath = (item: string, power: string) =>
+  item ==="compass" ?
+    power === "wealth" ? "/images/power/compass wealth.jpg" :
+    power === "gear"   ? "/images/power/compass gear.jpg" : 
+    "/images/power/compass heart.jpg" 
+  :
+
+  item === "key" ?
+    power === "wealth" ? "/images/power/key wealth.jpg" :
+    power === "gear"   ? "/images/power/key gear.jpg" : 
+    "/images/power/key health.jpg"
   
-    onSnapshot (docRef, (docSnap) => {
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        // You can access specific fields:
-        // console.log("Admin Active:", data.adminActive);
-        // console.log("Monitor Active:", data.monitorActive);
-        // console.log("Visitor Status:", data.visitorStatus);
-        console.log("Updated Stall Activity Data:", docSnap.data());
-        setVisitorStatus(data.visitorStatus);
-      } else {
-        console.log("Document does not exist!");
-      }
-    });
-  }
+  :
+  item === "shield" ?
+    power === "wealth" ? "/images/power/shield wealth.jpg" :
+    power === "gear"   ? "/images/power/shield resistance.jpg" : 
+    "/images/power/shield health.jpg"
+  
+  :
+    ''

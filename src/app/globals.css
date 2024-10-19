@@ -2,12 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Lexend+Tera:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&display=swap');
+
 .loginContainer {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: #f0f0f0;
+  background: 'black';
+}
+
+.robotoText {
+  font-family: 'Roboto', sans-serif;
 }
 
 .loginCard {
@@ -19,20 +27,21 @@
 }
 
 :root {
-  --background: #ffffff;
+  --background: 'black';
   --foreground: #171717;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
-    --foreground: #ededed;
+    --foreground: #0a0a0a;
   }
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
+  background-color: "#c2c5aa";
   font-family: Arial, Helvetica, sans-serif;
 }
 
