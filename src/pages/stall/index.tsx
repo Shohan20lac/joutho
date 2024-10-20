@@ -14,26 +14,9 @@ const detectDeviceType = () => {
 type DeviceName = "tablet" | "monitor" | "admin";
 
 export default function StallSelector() {
-  const router = useRouter();
-  const [deviceType, setDeviceType] = useState("");
-
-  useEffect(() => {
-    const detectedDevice = detectDeviceType();
-    setDeviceType(detectedDevice);
-  }, []);
-
-  const handleSelection = (selectedDevice: DeviceName) => {
-    console.log("Selected Device:", selectedDevice);
-    setDeviceType(selectedDevice);
-    // if (selectedDevice === "tablet") {
-    //   router.push("/stall/tablet");
-    // } else if (selectedDevice === "monitor") {
-    //   router.push("/stall/monitor");
-    // } else {
-    //   router.push("/stall/admin");
-    //
-    router.push(`/stall/${selectedDevice}`)
-  }
+  const router = useRouter()
+    
+  
 
   return (
     <Box
@@ -62,7 +45,7 @@ export default function StallSelector() {
           <Button
             variant="contained"
             color="primary"
-            onClick={() => handleSelection("tablet")}
+            onClick={() => router.push("/stall/tablet")}
             sx={{ height: 60, my: 1, ...stallStyles.button}}
           >
             Stall Tablet
@@ -71,7 +54,7 @@ export default function StallSelector() {
           <Button
             variant="contained"
             color="secondary"
-            onClick={() => handleSelection("monitor")}
+            onClick={() => router.push("/stall/monitor")}
             sx={{ height: 60, my: 1, ...stallStyles.button }}
           >
             Stall Monitor
@@ -80,16 +63,12 @@ export default function StallSelector() {
           <Button
             variant="contained"
             color="info"
-            onClick={() => handleSelection("admin")}
+            onClick={() => router.push("/stall/admin")}
             sx={{ height: 60, my: 1, ...stallStyles.button }}
           >
             Stall Admin
           </Button>
         </Box>
-
-        <Typography variant="caption" display="block" sx={{ mt: 4 }}>
-          Detected Device: {deviceType}
-        </Typography>
       </Paper>
     </Box>
   );

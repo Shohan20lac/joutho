@@ -6,6 +6,7 @@ import { commonStyles } from "@/sharedStyles";
 import { CardSelectionStatus } from "./animal";
 import { io } from "socket.io-client";
 import { Player } from '@lottiefiles/react-lottie-player';
+import { socketUrl } from "../../../../../socketConfig";
 
 const elementOptions = ["fire", "water", "earth", "air"];
 
@@ -16,15 +17,15 @@ export default function ElementSelection() {
   const [socket, setSocket] = useState<ReturnType<typeof io> | null>(null);
 
   useEffect(() => {
-    const newSocket = io('http://192.168.68.123:3001');
-    setSocket(newSocket);
+    const newSocket = io (socketUrl)
+    setSocket(newSocket)
 
     newSocket.on('updateElementSelection', ({ newElement, newStatus }) => {
       console.log('updateElementSelection triggered with', newElement, newStatus);
       setSelectedElement(newElement);
       setElementSelectionStatus(newStatus);
 
-      if (newStatus === 'confirmed') router.push("/stall/tablet/character-creation/item");
+      if (newStatus === 'confirmed') router.push ("/stall/tablet/character-creation/item");
     });
   }, []);
 

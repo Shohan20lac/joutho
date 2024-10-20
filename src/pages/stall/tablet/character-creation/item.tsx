@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import { commonStyles } from "@/sharedStyles";
 import { io } from "socket.io-client";
 import { CardSelectionStatus } from "./animal";
+import { socketUrl } from "../../../../../socketConfig";
 
 const itemOptions = ["key", "shield", "compass"] as const;
 type SelectedItem = typeof itemOptions[number] | ""
@@ -18,7 +19,7 @@ export default function ItemSelection() {
   const router = useRouter();
 
   useEffect(() => {
-    const newSocket = io('http://192.168.68.123:3001');
+    const newSocket = io(socketUrl)
     setSocket(newSocket);
 
     newSocket.on('updateItemSelection', ({ newValue, newStatus }) => {

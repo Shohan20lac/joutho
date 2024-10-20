@@ -6,6 +6,7 @@ import { commonStyles } from "@/sharedStyles";
 import { getItemPowerDescription, getItemPowerPath, ItemType, PowerType } from "@/utils/stall.utils";
 import { CardSelectionStatus } from "./animal";
 import { io } from "socket.io-client";
+import { socketUrl } from "../../../../../socketConfig";
 
 const powerOptions: PowerType[] = ["wealth", "gear", "health"];
 
@@ -17,10 +18,10 @@ export default function PowerSelection() {
   const [socket, setSocket] = useState<ReturnType<typeof io> | null>(null)
 
   useEffect(() => {
-    const newSocket = io('http://192.168.68.123:3001');
+    const newSocket = io(socketUrl)
     setSocket(newSocket);
 
-    newSocket.on('gotStallActivity', (stallActivity) => {
+    newSocket.on ('gotStallActivity', (stallActivity) => {
       setSelectedItem (stallActivity.selectedItem)
       setSelectedPower (stallActivity.selectedPower)
     })

@@ -6,6 +6,7 @@ import { useRouter } from "next/router";
 import { commonStyles } from "@/sharedStyles";
 import { io } from "socket.io-client";
 import { AvatarState } from "../../admin";
+import { socketUrl } from "../../../../../socketConfig";
 
 const animalOptions = ["hawk", "owl", "dolphin"];
 export type CardSelectionStatus = "selecting" | "requested" | "confirmed" | null
@@ -17,7 +18,7 @@ export default function AnimalSelection() {
   const [socket, setSocket] = useState<ReturnType<typeof io> | null>(null);
 
   useEffect (()=>{
-    const newSocket = io ('http://192.168.68.123:3001');
+    const newSocket = io (socketUrl)
     setSocket (newSocket)
 
     newSocket.on ('updateAnimalSelection', ({newAnimal, newStatus}) => {

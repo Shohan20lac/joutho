@@ -1,46 +1,115 @@
 import { useEffect, useState } from "react";
 import { Box, Typography, Paper } from "@mui/material";
-import { listenToStallActivity } from "@/utils/stall.utils";
+import Image from 'next/image';
+import { io } from "socket.io-client";
+import { commonStyles } from "@/sharedStyles";
+import { socketUrl } from "../../../../socketConfig";
+
+interface Visitor {
+  name: string;
+  animal: string;
+  element: string;
+  item: string;
+  power: string;
+}
+
+const constructVisitorObject = (visitorTraits: string) => {
+  const traitsArray = visitorTraits.split(",");
+  const [name, animal, element, item, power] = traitsArray;
+  return { name, animal, element, item, power };
+};
 
 export default function StallMonitor() {
-  const [monitorContent, setMonitorContent] = useState("");
-  const [visitorStatus, setVisitorStatus] = useState ("idle")
-
-  listenToStallActivity(setVisitorStatus)
+  const [socket, setSocket] = useState<ReturnType<typeof io> | null>(null);
+  const [visitorCount, setVisitorCount] = useState(0); // Visitor count state
 
   useEffect(() => {
-    // This would typically be synced with Firestore, watching for data updates
-    // Example: Firestore onSnapshot logic to sync content from stallTablet
-    const fetchData = () => {
-      setMonitorContent("Character creation in progress...");
+    const newSocket = io (socketUrl);
+    setSocket(newSocket);
+
+    newSocket.on('connect', () => {
+      newSocket.emit("getVisitors");
+    });
+
+    newSocket.on('gotVisitors', (visitorList) => {
+      console.log('got visitors', visitorList);
+
+      // Update visitor count based on the list length
+      setVisitorCount(visitorList.length);
+    });
+
+    return () => {
+      newSocket.disconnect();
     };
-    fetchData();
   }, []);
 
   return (
     <Box
       sx={{
         display: "flex",
+        flexDirection: "column", // Stack the logo and welcome content vertically
         justifyContent: "center",
         alignItems: "center",
         height: "100vh",
-        backgroundColor: "#e0e0e0",
+        color: "#fff", // White text for contrast
       }}
     >
-      <Paper
-        elevation={3}
+      {/* Visitor Counter in the top-right corner */}
+      <Box
         sx={{
-          padding: 4,
-          maxWidth: 600,
-          textAlign: "center",
-          borderRadius: 2,
+          position: "absolute",
+          top: 16,
+          right: 24,
+          backgroundColor: commonStyles.colors.darkBrown, // Transparent black background
+          padding: "8px 16px",
+          borderRadius: "8px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
         }}
       >
-        <Typography variant="h5" gutterBottom>
-          Joutho Monitor
+        <Typography variant="h6" fontWeight="bold" color='white' fontFamily="Monospace" fontSize={35}>
+          Visitors Today:
         </Typography>
-        <Typography variant="subtitle1">{monitorContent}</Typography>
-      </Paper>
+        <Typography variant="h6" fontWeight="bold" color='white' fontFamily="Monospace" fontSize={35}>
+          {visitorCount}
+        </Typography>
+      </Box>
+
+      <Box>
+        <Image
+          src="/images/joutho.png"
+          alt="Joutho Logo"
+          width={400}
+          height={400}
+          style={{
+            marginBottom: 16, // Add space between the logo and the welcome content
+          }}
+        />
+      </Box>
+
+      <Box
+        sx={{
+          padding: 6,
+          mindWidth: 1000,
+          maxWidth: 900,
+          alignItems: 'center',
+          textAlign: "center",
+          borderRadius: 2,
+          color: "#fff",
+          marginBottom: 16, // Add space between the welcome content and the monitor content
+        }}
+      >
+        {/* Subheader: A brief description of the mission */}
+        <Typography color="#3ba94f" variant="h4" gutterBottom fontFamily="Monospace">
+          A platform for connecting lifelong acts of kindness.
+        </Typography>
+
+        {/* Optional Monitor Content if Any */}
+        <Typography variant="body1" fontSize={22}>
+          {/* No change to this content */}
+        </Typography>
+      </Box>
     </Box>
   );
 }

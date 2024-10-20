@@ -6,6 +6,7 @@ import router from "next/router"
 import Image from "next/image"
 import { io } from "socket.io-client"
 import { VisitorStatus } from "../admin"
+import { socketUrl } from "../../../../socketConfig"
 
 // router.push("/stall/tablet/character-created");
 
@@ -14,7 +15,7 @@ export default function StallTablet() {
   const [socket, setSocket] = useState<ReturnType<typeof io> | null>(null);
   
   useEffect (()=>{
-    const newSocket = io ('http://192.168.68.123:3001');
+    const newSocket = io (socketUrl)
     setSocket (newSocket)
 
     newSocket.on('setVisitorStatus', (newVisitorStatus) => {

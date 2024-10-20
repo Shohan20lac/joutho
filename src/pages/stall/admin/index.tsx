@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { Box, Button, Typography, Paper, Grid } from "@mui/material"
+import { Box, Button, Typography, Paper, Grid, TextField } from "@mui/material"
 import { stallStyles } from "@/sharedStyles"
 import { io } from "socket.io-client";
 import { CardSelectionStatus } from "../tablet/character-creation/animal";
+import { socketUrl } from "../../../../socketConfig";
 
 export type VisitorStatus = 
   "idle" 
@@ -11,6 +12,7 @@ export type VisitorStatus =
   | "characterCreationSuccess"
 
 export interface AvatarState {
+  name: string 
   animal: string
   animalSelectionStatus: CardSelectionStatus
 
@@ -27,7 +29,9 @@ export interface AvatarState {
 export default function StallAdmin() {
   const [socket, setSocket] = useState<ReturnType<typeof io> | null>(null);
   const [visitorStatus, setVisitorStatus] = useState<VisitorStatus>("idle");
+  
   const [avatarState, setAvatarState] = useState<AvatarState> ({
+    name: "",
     animal: "",
     animalSelectionStatus: null,
     element: "",
@@ -39,11 +43,10 @@ export default function StallAdmin() {
   })
 
   useEffect (()=>{
-    const newSocket = io ('http://192.168.68.123:3001')
+    const newSocket = io (socketUrl)
     setSocket (newSocket)
 
     newSocket.on ('setVisitorStatus', (newVisitorStatus) => setVisitorStatus (newVisitorStatus))
-
     newSocket.on ('updateAnimalSelection',  ({newAnimal,  newStatus}) => setAvatarState ({...avatarState, animal:  newAnimal,  animalSelectionStatus:  newStatus }))
     newSocket.on ('updateElementSelection', ({newElement, newStatus}) => setAvatarState ({...avatarState, element: newElement, elementSelectionStatus: newStatus }))
     newSocket.on ('updateItemSelection',    ({newItem,    newStatus}) => {
@@ -91,6 +94,28 @@ export default function StallAdmin() {
 
         {visitorStatus === "characterCreationOngoing" && (
           <Grid container spacing={2} sx={{ mt: 2 }}>
+            {
+              <>
+                <TextField
+                  label="Enter Visitor Name"
+                  variant="outlined"
+                  fullWidth
+                  value={avatarState.name}
+                  onChange={(e: any) => setAvatarState({
+                    ...avatarState,
+                    name: e.target.value,
+                  })}
+                  sx={{ mb: 3 }}
+                />
+                <Button onClick={()=>{
+                  console.log ('@StallAdmin: about to emit updateVisitorName', avatarState.name)
+                  if (socket)
+                    socket.emit ("updateVisitorName", avatarState.name)
+                  else
+                    console.error("socket not ready")
+                }}> {"Save"}</Button>
+              </>
+            }
             {/* Animal Tile */}
             <Grid item xs={3}>
               <Box

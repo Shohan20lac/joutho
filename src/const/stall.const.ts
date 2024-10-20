@@ -7,7 +7,7 @@ export const StallConstants = {
         },
         shield: {
             wealth: "Shield of Wealth: \ncan protect any treasure in the world. Just needs to bind first.",
-            gear:   "Shield of Wealth: \ncan protect any machinery in the world. Just needs to bind first.",
+            gear:   "Shield of Resistance: \ncan protect any machinery in the world. Just needs to bind first.",
             health: "Shield of Hearts:  \ncan protect any person or value in the world. Just needs to bind first."
         },
         compass: {
