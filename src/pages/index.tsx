@@ -1,22 +1,29 @@
-import { useEffect, useState } from "react";
-import Box from "@mui/material/Box";
-import { Button, Paper, TextField, Typography } from "@mui/material";
-import io from 'socket.io-client';
+import { useState } from "react";
+import { Box } from "@mui/material";
+import { keyframes } from "@emotion/react";
+import { commonStyles } from "@/sharedStyles";
+import WelcomeCard from "@/components/WelcomeCard";
+import WelcomeMessage from "@/components/WelcomeMessage";
 
-export default function Login() {
-  const [visitorName, setVisitorName] = useState("")
+const breathingEffect = keyframes`
+  0% { background-color: ${commonStyles.colors.darkBrown}; }
+  50% { background-color: ${commonStyles.colors.darkGreen}; }
+  100% { background-color: ${commonStyles.colors.darkBrown}; }
+`;
 
-  useEffect(()=> {
-    console.log ('visitor Name changed:', visitorName)
-  },[visitorName])
+export default function Welcome() {
+  const [firstName, setFirstName] = useState("");
+  const [showWelcomeCard, setShowWelcomeCard] = useState(true);
 
-  const handleLogin = () => {
-    if (visitorName === "00119922") {
-      window.location.href = "/stall"
-    } else {
-      alert("Incorrect visitor name!")
+  const handleContinue = () => {
+    if (firstName) {
+      setShowWelcomeCard(false);
     }
-  }
+  };
+
+  const handleBack = () => {
+    setShowWelcomeCard(true);
+  };
 
   return (
     <Box
@@ -25,50 +32,16 @@ export default function Login() {
         justifyContent: "center",
         alignItems: "center",
         height: "100vh",
-        backgroundColor: "#f0f0f0",
+        overflow: "hidden",
+        position: "relative",
+        animation: showWelcomeCard ? '' : `${breathingEffect} 5s ease-in-out infinite`,
       }}
     >
-      <Paper
-        elevation={3}
-        sx={{
-          padding: 4,
-          maxWidth: 400,
-          textAlign: "center",
-          borderRadius: 2,
-        }}
-      >
-        <Typography variant="h4" gutterBottom>
-          Welcome to Joutho!
-        </Typography>
-        <Typography variant="subtitle1" gutterBottom>
-          Who are you?
-        </Typography>
-        <TextField
-          label="Enter Visitor Name"
-          variant="outlined"
-          fullWidth
-          value={visitorName}
-          onChange={(e) => setVisitorName(e.target.value)}
-          sx={{ mb: 3 }}
-        />
-        <Button
-          variant="contained"
-          color="primary"
-          fullWidth
-          onClick={handleLogin}
-          sx={{ mb: 2 }}
-        >
-          Proceed
-        </Button>
-        <Button
-          variant="outlined"
-          color="secondary"
-          fullWidth
-          onClick={() => alert("Sign Up coming soon!")}
-        >
-          Sign Up
-        </Button>
-      </Paper>
+      {
+        showWelcomeCard 
+        ? <WelcomeCard    firstName={firstName} setFirstName={setFirstName} onContinue={handleContinue} />
+        : <WelcomeMessage firstName={firstName} onBack={handleBack} />
+      }
     </Box>
   );
 }

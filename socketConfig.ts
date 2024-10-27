@@ -1,0 +1,1 @@
+export const socketUrl = "192.168.243.65:3001"

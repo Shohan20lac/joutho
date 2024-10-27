@@ -38,12 +38,14 @@
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  background-color: "#c2c5aa";
-  font-family: Arial, Helvetica, sans-serif;
-}
+html, body {
+
+  padding: 0px;
+  
+  margin: 0px;
+  
+  }
+
 
 @layer utilities {
   .text-balance {
