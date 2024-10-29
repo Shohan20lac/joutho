@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 import "./globals.css";
 
 const geistSans = localFont({
@@ -23,6 +25,15 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // const router = useRouter();
+
+  // useEffect(() => {
+  //   const userInfo = localStorage.getItem("userInfo");
+  //   if (!userInfo) {
+  //     router.replace("/"); // Redirect to home if no userInfo is found
+  //   }
+  // }, [router]);
+
   return (
     <html lang="en">
       <body
