@@ -21,11 +21,11 @@ const AnimalSelector = ({ avatarState, setAvatarState }: AnimalSelectorProps) =>
           justifyContent: 'center',
           alignItems: 'center',
           borderRadius: 4,
-          width: '92%',  // Full width
-          padding: '20px', // Give enough padding for the text
-          backgroundColor: commonStyles.colors.brown, // Brown background
+          width: '92%',
+          padding: '20px',
+          backgroundColor: commonStyles.colors.brown,
           background: `linear-gradient(145deg, ${commonStyles.colors.brown}, ${commonStyles.colors.darkBrown})`, // Gradient background
-          boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.2)', // Drop shadow for depth
+          boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.2)',
           marginBottom: 4,
         }}
       >

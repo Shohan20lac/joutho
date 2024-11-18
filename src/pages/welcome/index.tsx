@@ -1,100 +1,127 @@
-import { useState } from "react"
-import { Box, Typography } from "@mui/material"
-import { keyframes } from "@emotion/react"
-import { commonStyles } from "@/sharedStyles"
-import { Animal } from "@/const/avatar.const"
-import { Element } from "@/const/avatar.const"
-import { Item } from "@/const/avatar.const"
-import { Power } from "@/const/avatar.const"
-import WelcomeCard from "@/components/Welcome/WelcomeCard"
-// import "../app/globals.css"
-import EnterPassword from "@/components/Welcome/EnterPassword"
-import AnimalSelector from "@/components/CharacterCreation/animalSelector"
-import RequestCharacterCreation from "@/components/CharacterCreation/requestCharacterCreation"
-
-const breathingEffect = keyframes`
-  0% { background-color: ${commonStyles.colors.lightBrown}; }
-  50% { background-color: ${commonStyles.colors.darkGreen}; }
-  100% { background-color: ${commonStyles.colors.lightBrown}; }
-`;
+import { useEffect, useState, useMemo } from "react";
+import { Box, Typography } from "@mui/material";
+import { commonStyles } from "@/sharedStyles";
+import { Animal, Element, Item, Power } from "@/const/avatar.const";
+import WelcomeCard from "@/components/Welcome/WelcomeCard";
+import EnterPassword from "@/components/Welcome/EnterPassword";
+import RequestCharacterCreationModal from "@/components/Welcome/RequestCharacterCreationModal";
+import CharacterCreation from "@/components/CharacterCreation";
+import { createSnapshotListener } from "@/utils/event.utils";
+import { EventType } from "@/const/event.const";
 
 export enum VisitorState {
-    ENTER_NAME = "ENTER_NAME",
-    ENTER_PASSWORD = "ENTER_PASSWORD",
-    CHARACTER_CREATION_REQUESTED = "CHARACTER_CREATION_REQUESTED",
-    CHARACTER_CREATION_ONGOING = "CHARACTER_CREATION_ONGOING",
-    CHARACTER_CREATION_SUCCESS = "CHARACTER_CREATION_SUCCESS"
+  ENTER_NAME = "ENTER_NAME",
+  ENTER_PASSWORD = "ENTER_PASSWORD",
+  CHARACTER_CREATION_PROMPTED = "CHARACTER_CREATION_PROMPTED",
+  CHARACTER_CREATION_ONGOING = "CHARACTER_CREATION_ONGOING",
+  CHARACTER_CREATION_SUCCESS = "CHARACTER_CREATION_SUCCESS",
 }
 
 export interface AvatarState {
-    name:    string
-    animal:  Animal
-    element: Element
-    item:    Item
-    power:   Power
+  name: string;
+  animal: Animal | "";
+  element: Element | "";
+  item: Item | "";
+  power: Power | "";
 }
 
+export enum EventName {
+  STALL_ACTIVITY_CHANGED = "stallActivityChanged",
+}
 
-export default function Welcome () {
-    const [visitorState, setVisitorState] = useState <VisitorState> (VisitorState.ENTER_NAME)
+export default function Welcome() {
+  const [visitorState, setVisitorState] = useState<VisitorState>(
+    VisitorState.ENTER_NAME
+  );
 
-    const [avatarState, setAvatarState] = useState<AvatarState> ({
-        name:    "",
-        animal:  Animal.NONE,
-        element: Element.NONE,
-        item:    Item.NONE,
-        power:   Power.NONE
-    })
+  const [avatarState, setAvatarState] = useState<AvatarState>({
+    name: "",
+    animal: "",
+    element: "",
+    item: "",
+    power: "",
+  });
 
-    return (
-        
-        <Box
-            sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                height: "100vh",
-                overflow: "hidden",
-                position: "relative",
-                backgroundColor: 
-                    visitorState === VisitorState.ENTER_NAME ? 
-                        commonStyles.colors.darkBrown :
-                    visitorState === VisitorState.ENTER_PASSWORD ?
-                        commonStyles.colors.lightBrown
-                    : commonStyles.colors.lightBrown,
-            }}
-        >
-        {
-            visitorState === VisitorState.ENTER_NAME ? 
-                <WelcomeCard 
-                    avatarState     = {avatarState} 
-                    setAvatarState  = {setAvatarState} 
-                    setVisitorState = {setVisitorState}
-                /> : 
-                
-            visitorState === VisitorState.ENTER_PASSWORD ?
-                <EnterPassword
-                    avatarState     = {avatarState} 
-                    setAvatarState  = {setAvatarState} 
-                    setVisitorState = {setVisitorState}
-                /> :
+  // Memoize background color to prevent unnecessary recalculations
+  const backgroundColor = useMemo(() => {
+    switch (visitorState) {
+      case VisitorState.ENTER_NAME: return commonStyles.colors.darkBrown;
+      
+      default: return commonStyles.colors.lightBrown;
+    }
+  }, [visitorState]);
 
-            visitorState === VisitorState.CHARACTER_CREATION_REQUESTED ?
-                <RequestCharacterCreation
-                    visitorName={avatarState.name}
-                    setVisitorState={setVisitorState}
-                /> :
+  useEffect(() => {
+    const visitorStateListener = createSnapshotListener({
+      eventType: EventType.STALL_EVENT,
+      eventName: EventName.STALL_ACTIVITY_CHANGED,
+      onTrigger: (newVisitorState: VisitorState) => setVisitorState(newVisitorState),
+    });
 
-            visitorState === VisitorState.CHARACTER_CREATION_ONGOING ?
-                <AnimalSelector avatarState={avatarState} setAvatarState={setAvatarState}/> :
+    return () => {
+      if (visitorStateListener) {
+        visitorStateListener();
+      }
+    };
+  }, []);
 
-            visitorState === VisitorState.CHARACTER_CREATION_SUCCESS ?
-                <Typography>
-                    {`welcome to the joutho network, ${avatarState.name}!`}
-                </Typography> :
-                
-            <></>
-        }
-        </Box>
-    );
+  // Render the main content based on visitor state
+  const renderContent = useMemo(() => {
+    switch (visitorState) {
+      case VisitorState.ENTER_NAME:
+        return (
+          <WelcomeCard
+            avatarState={avatarState}
+            setAvatarState={setAvatarState}
+            setVisitorState={setVisitorState}
+          />
+        );
+      case VisitorState.ENTER_PASSWORD:
+        return (
+          <EnterPassword
+            avatarState={avatarState}
+            setAvatarState={setAvatarState}
+            visitorState={visitorState}
+            setVisitorState={setVisitorState}
+          />
+        );
+      case VisitorState.CHARACTER_CREATION_ONGOING:
+        return (
+          <CharacterCreation
+            avatarState={avatarState}
+            setAvatarState={setAvatarState}
+          />
+        );
+      case VisitorState.CHARACTER_CREATION_SUCCESS:
+        return (
+          <Typography>{`Welcome to the Joutho network, ${avatarState.name}!`}</Typography>
+        );
+      default:
+        return null;
+    }
+  }, [visitorState, avatarState]);
+
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+        overflow: "hidden",
+        position: "relative",
+        backgroundColor,
+      }}
+    >
+      {renderContent}
+
+      {/* Modal is always rendered but conditionally visible */}
+      <RequestCharacterCreationModal
+        open={visitorState === VisitorState.CHARACTER_CREATION_PROMPTED}
+        onClose={() => setVisitorState(VisitorState.ENTER_NAME)}
+        visitorName={avatarState.name}
+        setVisitorState={setVisitorState}
+      />
+    </Box>
+  );
 }

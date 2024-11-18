@@ -1,13 +1,14 @@
 import { Box, Button, Grid, Grid2, Typography } from "@mui/material";
 import KeyboardDoubleArrowLeftOutlinedIcon from "@mui/icons-material/KeyboardDoubleArrowLeftOutlined";
-import PasswordThumbnail from "./PasswordThumbnail";
 import { Dispatch, SetStateAction, useState } from "react";
 import { AvatarState, VisitorState } from "@/pages/welcome";
 import Image from "next/image";
 import { commonStyles } from "@/sharedStyles";
+import RequestCharacterCreationModal from "./RequestCharacterCreationModal";
 
 interface EnterPasswordProps {
   avatarState: AvatarState
+  visitorState: VisitorState
   setAvatarState: Dispatch<SetStateAction<AvatarState>>
   setVisitorState: Dispatch<SetStateAction<VisitorState>>
 }
@@ -29,7 +30,7 @@ export const powers = [
   ]
 
 
-const WelcomeMessage = ({ avatarState, setAvatarState, setVisitorState }: EnterPasswordProps) => {
+const WelcomeMessage = ({ avatarState, setAvatarState, visitorState, setVisitorState }: EnterPasswordProps) => {
 
   const [password, setPassword] = useState<PasswordState>({
     animal: "hawk",
@@ -116,7 +117,7 @@ const WelcomeMessage = ({ avatarState, setAvatarState, setVisitorState }: EnterP
           padding: 1,
           width: '90%',  // Full width
           backgroundColor: commonStyles.colors.parchment, // Brown background
-          background: `linear-gradient(145deg, ${commonStyles.colors.parchmen}, ${commonStyles.colors.darkBrown})`, // Gradient background
+          background: `linear-gradient(145deg, ${commonStyles.colors.parchment}, ${commonStyles.colors.darkBrown})`, // Gradient background
           boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.2)', // Drop shadow for depth
           mb: 1
         }}
@@ -186,10 +187,7 @@ const WelcomeMessage = ({ avatarState, setAvatarState, setVisitorState }: EnterP
               </Grid>
             ))}
           </Grid2>
-
-          
         </Box>
-
 
       <Button
         variant={ avatarState.name ? "contained" :"text"}
@@ -208,7 +206,7 @@ const WelcomeMessage = ({ avatarState, setAvatarState, setVisitorState }: EnterP
           cursor: "pointer",
           color: 'white',
         }}
-        onClick={() => {setVisitorState (VisitorState.CHARACTER_CREATION_REQUESTED)}} 
+        onClick={() => {setVisitorState (VisitorState.CHARACTER_CREATION_PROMPTED)}} 
       >
         I don’t have a password yet
       </Typography>

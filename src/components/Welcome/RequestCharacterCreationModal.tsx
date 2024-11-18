@@ -1,13 +1,16 @@
-import { Paper, Typography, TextField, Button, Box, Switch } from "@mui/material";
+import { Paper, Typography, Button, Box, Switch, Modal } from "@mui/material";
 import { commonStyles } from "@/sharedStyles";
-import { AvatarState, VisitorState } from "@/pages/welcome";
-import { Dispatch, SetStateAction, useState } from "react";
+import { VisitorState } from "@/pages/welcome";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { UserStatus } from "@/utils";
-import Bubble from "../Welcome/bubble";
+import Bubble from "./Bubble";
+import { useRouter } from "next/router";
 
-interface RequestCharacterCreationProps {
+interface RequestCharacterCreationModalProps {
     visitorName: string
     setVisitorState: Dispatch<SetStateAction<VisitorState>>
+    open: boolean
+    onClose: () => void
 }
 
 export enum RequestCharacterCreationState {
@@ -25,9 +28,12 @@ enum TalkingPillowState {
     VISITOR='visitor'
 }
 
-const RequestCharacterCreation = ({ visitorName, setVisitorState }: RequestCharacterCreationProps) => {
-
+const RequestCharacterCreationModal = ({ visitorName, setVisitorState, open, onClose, }: RequestCharacterCreationModalProps) => {
+    const [requestCharacterCreationState, setRequestCharacterCreationState] = useState<RequestCharacterCreationState>(RequestCharacterCreationState.PROMPT_START)
     const [adminState, setAdminState] = useState <AdminState>({name: 'shohan'})
+
+    const router = useRouter()
+
     const [showRedButton, setShowRedButton] = useState<boolean> (true)
     const [talkingPillowState, setTalkingPillowState] = useState<TalkingPillowState> (TalkingPillowState.ADMIN)
 
@@ -45,11 +51,25 @@ const RequestCharacterCreation = ({ visitorName, setVisitorState }: RequestChara
             }}
             onClick={() => console.log("red button clicked")}
         />
-    );
+    )
 
-    const [requestCharacterCreationState, setRequestCharacterCreationState] = useState<RequestCharacterCreationState>(RequestCharacterCreationState.PROMPT_START)
+    useEffect (
+        () => {
+
+        },[
+            requestCharacterCreationState,
+            talkingPillowState
+        ]
+    )
+    
     return (
-        <Paper elevation={4} sx={{ padding: 4, maxWidth: 500, textAlign: "center", backgroundColor: commonStyles.colors.parchment, margin: '10px' }}>
+        <Modal
+            open={open}
+            onClose={onClose}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+        >
+            <Paper elevation={4} sx={{ padding: 4, maxWidth: 500, textAlign: "center", backgroundColor: commonStyles.colors.parchment, margin: '10px' }}>
             {
                 requestCharacterCreationState === RequestCharacterCreationState.PROMPT_START
                 ?
@@ -106,8 +126,12 @@ const RequestCharacterCreation = ({ visitorName, setVisitorState }: RequestChara
                     </>
             }
         </Paper>
+        </Modal>
+
+
+        
     )
 }
 
-export default RequestCharacterCreation;
+export default RequestCharacterCreationModal;
 

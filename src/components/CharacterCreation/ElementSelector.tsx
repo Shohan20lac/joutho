@@ -3,15 +3,14 @@ import { Box, Typography, Grid } from "@mui/material";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { commonStyles } from "@/sharedStyles";
-import { CardSelectionStatus } from "./animal";
 import { io } from "socket.io-client";
 import { Player } from '@lottiefiles/react-lottie-player';
-import { socketUrl } from "../../../../../socketConfig";
+import { socketUrl } from "../../../socketConfig";
 
 const elementOptions = ["fire", "water", "earth", "air"];
 
-export default function ElementSelection() {
-  const [elementSelectionStatus, setElementSelectionStatus] = useState<CardSelectionStatus>("selecting");
+const ElementSelector = () => {
+  const [elementSelectionStatus, setElementSelectionStatus] = useState("selecting");
   const [selectedElement, setSelectedElement] = useState<string>("");
   const router = useRouter();
   const [socket, setSocket] = useState<ReturnType<typeof io> | null>(null);
@@ -153,3 +152,5 @@ export default function ElementSelection() {
     </Box>
   );
 }
+
+export default ElementSelector;

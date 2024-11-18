@@ -4,9 +4,8 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { commonStyles } from "@/sharedStyles";
 import { getItemPowerDescription, getItemPowerPath, ItemType, PowerType } from "@/utils/stall.utils";
-import { CardSelectionStatus } from "./animal";
 import { io } from "socket.io-client";
-import { socketUrl } from "../../../../../socketConfig";
+import { socketUrl } from "../../../socketConfig";
 
 const powerOptions: PowerType[] = ["wealth", "gear", "health"];
 

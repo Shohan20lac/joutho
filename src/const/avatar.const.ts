@@ -1,12 +1,10 @@
 enum Animal {
-    NONE = "none",
     HAWK = "hawk",
     OWL = "owl",
     DOLPHIN = "dolphin"
 }
 
 enum Element {
-    NONE = "none",
     EARTH = "earth",
     AIR = "air",
     FIRE = "fire",
@@ -14,18 +12,17 @@ enum Element {
 }
 
 enum Item {
-    NONE = "none",
     KEY = "key",
     SHIELD = "shield",
     COMPASS = "compass"
 }
 
 enum Power {
-    NONE = "none",
     GEAR = "gear",
     HEART = "heart",
+    HEALTH = "health",
     WEALTH = "wealth",
     RESISTANCE = "resistance"
 }
 
-export { Animal, Element, Item, Power };
+export { Animal, Element, Item, Power }
