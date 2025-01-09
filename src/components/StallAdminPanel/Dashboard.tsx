@@ -2,14 +2,14 @@ import { useEffect, useState } from "react";
 import { Box, Typography, Paper, Grid } from "@mui/material";
 import { io } from "socket.io-client";
 import { socketUrl } from "../../../socketConfig";
-import { AvatarStatus, Visitor } from "@/utils/visitor.utils";
+import { Visitor } from "@/utils/visitor.utils";
 
 interface StallAdminProps {
   socket: ReturnType<typeof io> | null;
   visitors: Visitor[]
 }
 
-export default function StallAdmin({ socket, visitors }: StallAdminProps) {
+export default function Dashboard ({ socket, visitors }: StallAdminProps) {
   return (
     <Box
       sx={{
@@ -72,7 +72,7 @@ export default function StallAdmin({ socket, visitors }: StallAdminProps) {
                 variant="body1"
                 sx={{ textAlign: "center", color: "gray" }}
               >
-                {visitor.stallActivity}
+                {visitor.visitorState}
               </Typography>
             </Paper>
           </Grid>

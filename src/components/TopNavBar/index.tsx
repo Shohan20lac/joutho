@@ -3,35 +3,33 @@ import { Dispatch, SetStateAction } from "react";
 import React from "react";
 
 interface TopNavBarProps {
-    currentView: "selector" | "admin" | "monitor";
-    setCurrentView: Dispatch<SetStateAction<"selector" | "admin" | "monitor">>
+    selectedTab: "dashboard" | "lobby" | null
+    onSelectTab: Dispatch<SetStateAction<"dashboard" | "lobby" | null>>
 }
 
-const TopNav = ({currentView, setCurrentView}: TopNavBarProps) =>
+const TopNav = ({selectedTab, onSelectTab}: TopNavBarProps) =>
     <Box
         sx={{
             display: "flex",
             justifyContent: "center",
-            padding: 2,
-            backgroundColor: "#333",
-            color: "#fff",
-            visibility: currentView === "selector" ? "hidden" : "visible", // Hide in selector mode
+            padding: 2
         }}
         >
         <Button
-            onClick={() => setCurrentView("admin")}
-            color="inherit"
+            onClick={() => onSelectTab("dashboard")}
             sx={{
-                fontWeight: currentView === "admin" ? "bold" : "normal", // Highlight active view
+                fontWeight: selectedTab === "dashboard" ? "bold" : "normal",
+                color: selectedTab === "dashboard" ? "green" : "black"
             }}
         >
             ADM
         </Button>
         <Button
-            onClick={() => setCurrentView("monitor")}
+            onClick={() => onSelectTab("lobby")}
             color="inherit"
             sx={{
-                fontWeight: currentView === "monitor" ? "bold" : "normal", // Highlight active view
+                fontWeight: selectedTab === "lobby" ? "bold" : "normal",
+                color: selectedTab === "lobby" ? "green" : "black"
             }}
         >
             MNTR

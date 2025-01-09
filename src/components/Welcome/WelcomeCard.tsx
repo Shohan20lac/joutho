@@ -137,11 +137,7 @@ const WelcomeCard = ({
     } finally {
       setLoading(false);
     }
-  };
-  
-
-
-  console.log ('rendering WElcomeCard with avatarState:', avatarState)
+  }
 
   return (
     <Paper
@@ -179,7 +175,6 @@ const WelcomeCard = ({
         fullWidth
         value={avatarState.name}
         onChange={(e) => {
-          console.log ("Got Input event:", e);
           setAvatarState({
             ...avatarState,
             name: e.target.value,

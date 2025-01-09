@@ -54,10 +54,6 @@ export default function Welcome() {
     }
   }, [visitorState])
 
-  useEffect (() => {
-    console.log ("@Welcome: Updated avatarState:", avatarState);
-  }, [avatarState]);
-
   // useEffect(() => {
   //   const visitorStateListener = createSnapshotListener ({
   //     eventType: EventType.STALL_EVENT,
@@ -76,7 +72,6 @@ export default function Welcome() {
     const newSocket = io (socketUrl)
     setSocket (newSocket)
 
-    console.log ('@Welcome: visitorState:', visitorState)
   },[])
 
   const renderContent = useMemo (
