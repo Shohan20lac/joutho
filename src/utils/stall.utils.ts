@@ -1,4 +1,6 @@
 import { StallConstants } from "@/const/stall.const";
+import { createHash } from "crypto";
+
 
 export type ItemType = "key" | "shield" | "compass";
 export type PowerType = "wealth" | "gear" | "heart" | "health"; // Include all possible powers
@@ -37,3 +39,26 @@ export const getItemPowerPath = (item: string, power: string) =>
   
   :
     ''
+
+export function generateStallId(deviceName: string, adminId: string): string {
+  const data = `${deviceName}-${adminId}`;
+  return createHash("sha256").update(data).digest("hex");
+}
+
+export function generateBrowserDeviceId() {
+  const userAgent = navigator.userAgent;  // Browser user agent string
+  const platform = navigator.platform;   // OS platform
+  const language = navigator.language;   // Browser language
+  return `${userAgent}-${platform}-${language}`;
+}
+
+export function hashBrowserData (adminId: any) {
+  const deviceInfo = generateBrowserDeviceId();
+  const data = `${deviceInfo}-${adminId}`;
+  return crypto.subtle.digest("SHA-256", new TextEncoder().encode(data))
+    .then (hashBuffer => {
+      return Array.from(new Uint8Array(hashBuffer))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+    });
+}

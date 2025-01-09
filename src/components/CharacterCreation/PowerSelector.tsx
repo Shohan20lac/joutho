@@ -6,11 +6,12 @@ import { commonStyles } from "@/sharedStyles";
 import { getItemPowerDescription, getItemPowerPath, ItemType, PowerType } from "@/utils/stall.utils";
 import { io } from "socket.io-client";
 import { socketUrl } from "../../../socketConfig";
+import { SelectionStatus } from "@/utils/selection.utils";
 
 const powerOptions: PowerType[] = ["wealth", "gear", "health"];
 
 export default function PowerSelection() {
-  const [powerSelectionStatus, setPowerSelectionStatus] = useState<CardSelectionStatus>("selecting");
+  const [powerSelectionStatus, setPowerSelectionStatus] = useState<SelectionStatus>(SelectionStatus.IDLE)
   const [selectedPower, setSelectedPower] = useState<string>("");
   const [selectedItem, setSelectedItem] = useState<string>("");
   const router = useRouter();
@@ -99,7 +100,7 @@ export default function PowerSelection() {
                   cursor: "pointer",
                   border:
                     selectedPower === power
-                      ? powerSelectionStatus === 'requested'
+                      ? powerSelectionStatus === SelectionStatus.REQUESTED
                         ? "2px solid green"
                         : "1px solid gray"
                       : "none",

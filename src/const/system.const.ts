@@ -1,0 +1,1 @@
+export const ADMIN_BYPASS_STRING = "admin123";

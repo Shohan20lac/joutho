@@ -14,13 +14,15 @@
     "@lottiefiles/react-lottie-player": "^3.5.4",
     "@mui/icons-material": "^6.1.5",
     "@mui/material": "^6.1.5",
+    "crypto": "^1.0.1",
     "firebase": "^10.14.1",
     "mui": "^0.0.1",
     "next": "^14.2.15",
     "react": "^18",
     "react-dom": "^18",
     "react-lottie-player": "^2.1.0",
-    "socket.io-client": "^4.8.0"
+    "socket.io-client": "^4.8.1",
+    "uuid": "^11.0.4"
   },
   "devDependencies": {
     "@types/node": "^20",

@@ -10,29 +10,26 @@ interface ListenerConfig {
 }
 
 export const createSnapshotListener = ({eventType, eventName, onTrigger}: ListenerConfig) => {
+  const docRef = getDocRef (eventType)
+  return (
+    onSnapshot (
+      getDocRef (eventType),
+      (docSnapshot) => {
+        if (!docSnapshot.exists()) {
+          console.warn ("No such document exists for eventType:", eventType, "eventName:", eventName)
+          return
+        }
 
-    console.log ("about to create snapshotListener with eventType:", eventType, "eventName:", eventName, "onTrigger:", onTrigger)
-    const docRef = getDocRef (eventType)
-    console.log ('docRef:', docRef)
-    return (
-        onSnapshot (
-            getDocRef (eventType),
-            (docSnapshot) => {
-                if (!docSnapshot.exists()) {
-                    console.warn ("No such document exists for eventType:", eventType, "eventName:", eventName)
-                    return
-                }
-        
-                const docData = docSnapshot.data()
-                console.log ('got new docData:', docData)
-                if (docData.action === eventName)
-                    onTrigger(docData.payload)
-            },
-            (error) => {
-              console.error("Error listening to top_setting document:", error)
-            }
-        )
+        const docData = docSnapshot.data()
+        console.log ('got new docData:', docData)
+        if (docData.action === eventName)
+          onTrigger(docData.payload)
+      },
+      (error) => {
+        console.error("Error listening to top_setting document:", error)
+      }
     )
+  )
 }
 
 export const getDocRef = (eventType: EventType) => {

@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { Box, Button, Typography, Paper, Grid, TextField } from "@mui/material"
 import { stallStyles } from "@/sharedStyles"
 import { io } from "socket.io-client";
-import { CardSelectionStatus } from "../tablet/character-creation/animal";
+// import { CardSelectionStatus } from "../tablet/character-creation/animal";
 import { socketUrl } from "../../../../socketConfig";
+import { SelectionStatus } from "@/utils/selection.utils";
 
 export type VisitorStatus = 
   "idle" 
@@ -14,16 +15,16 @@ export type VisitorStatus =
 export interface AvatarState {
   name: string 
   animal: string
-  animalSelectionStatus: CardSelectionStatus
+  animalSelectionStatus: SelectionStatus
 
   element: string
-  elementSelectionStatus: CardSelectionStatus
+  elementSelectionStatus: SelectionStatus
 
   item: string
-  itemSelectionStatus: CardSelectionStatus
+  itemSelectionStatus: SelectionStatus
 
   power: string
-  powerSelectionStatus: CardSelectionStatus
+  powerSelectionStatus: SelectionStatus
 }
 
 export default function StallAdmin() {
@@ -33,13 +34,13 @@ export default function StallAdmin() {
   const [avatarState, setAvatarState] = useState<AvatarState> ({
     name: "",
     animal: "",
-    animalSelectionStatus: null,
+    animalSelectionStatus: SelectionStatus.IDLE,
     element: "",
-    elementSelectionStatus: null,
+    elementSelectionStatus: SelectionStatus.IDLE,
     item: "",
-    itemSelectionStatus: null,
+    itemSelectionStatus: SelectionStatus.IDLE,
     power: "",
-    powerSelectionStatus: null,
+    powerSelectionStatus: SelectionStatus.IDLE,
   })
 
   useEffect (()=>{
@@ -57,14 +58,10 @@ export default function StallAdmin() {
 
   },[])
 
-  const getTileColor = (selectionStatus: CardSelectionStatus, value: string) => 
-    !value 
-    ? 
-      "grey" 
-    : 
-      selectionStatus === ("requested" as CardSelectionStatus)  ? "yellow" : 
-      selectionStatus === ("confirmed" as CardSelectionStatus) ? "green" 
-      : "grey"
+  const getTileColor = (selectionStatus: SelectionStatus, value: string) => 
+    selectionStatus === SelectionStatus.REQUESTED ? "orange" : 
+    selectionStatus === SelectionStatus.APPROVED ? "green" : 
+    "grey"
 
   console.log ('@StallAdmin: avatarState:', avatarState)
   return (

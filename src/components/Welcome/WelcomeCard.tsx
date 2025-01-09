@@ -1,11 +1,18 @@
 import { Paper, Typography, TextField, Button, Box } from "@mui/material";
 import { commonStyles } from "@/sharedStyles";
-import { AvatarState, EventName, VisitorState } from "@/pages/welcome";
-import { Dispatch, SetStateAction, useState } from "react";
+import { AvatarState, EventName } from "@/pages/welcome";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import Image from "next/image";
 import { getDocRef } from "@/utils/event.utils";
 import { EventType } from "@/const/event.const";
 import { serverTimestamp, setDoc } from "firebase/firestore";
+import { getAuth, signInAnonymously } from "firebase/auth";
+import { io } from "socket.io-client";
+import { socketUrl } from "../../../socketConfig";
+import { ADMIN_BYPASS_STRING } from "@/const/system.const";
+import { useRouter } from "next/router";
+import { v4 as uuid } from "uuid";
+import { VisitorState } from "@/utils/visitor.utils";
 
 // Constants for Text and Labels
 const WELCOME_MESSAGE = "Welcome to Joutho!";
@@ -55,9 +62,9 @@ const getButtonStyle = (enabled: boolean) => ({
 });
 
 interface WelcomeCardProps {
-  avatarState: AvatarState;
-  setAvatarState: Dispatch<SetStateAction<AvatarState>>;
-  setVisitorState: Dispatch<SetStateAction<VisitorState>>;
+  avatarState: AvatarState
+  setAvatarState: Dispatch<SetStateAction<AvatarState>>
+  setVisitorState: Dispatch<SetStateAction<VisitorState>>
 }
 
 const WelcomeCard = ({
@@ -65,16 +72,51 @@ const WelcomeCard = ({
   setAvatarState,
   setVisitorState,
 }: WelcomeCardProps) => {
-  const [loading, setLoading] = useState(false); // Track Firestore operation status
+  const [loading, setLoading] = useState(false)
+  const [socket, setSocket] = useState<ReturnType<typeof io> | null>(null)
+  const router = useRouter();
+
+  useEffect (() => {
+    const newSocket = io (socketUrl)
+    setSocket (newSocket)
+  },[])
 
   const handleContinue = async () => {
-    console.log ('@handleContinue')
-    setLoading(true); // Indicate loading state
+    if (avatarState.name === ADMIN_BYPASS_STRING) {
+      console.log("Admin bypass detected. Transitioning to admin panel.");
+      router.push (
+        "/admin",
+        undefined,
+        { shallow: false }
+      )
+  
+      if (socket) {
+        socket.emit ("ADMIN_MANNED_STALL", {
+          stallId: uuid(),
+          adminId: ADMIN_BYPASS_STRING,
+          timestamp: new Date().toISOString(),
+        })
+      } else {
+        console.error("Socket not initialized.");
+      }
+      return;
+    }
+  
+    const auth = getAuth();
+    if (!auth.currentUser) {
+      try {
+        await signInAnonymously(auth);
+        console.log("Signed in anonymously.");
+      } catch (error) {
+        console.error("Error signing in:", error);
+      }
+    }
+  
+    setLoading(true);
     try {
-      const docRef = getDocRef(EventType.STALL_EVENT); // Validate `getDocRef`
-      console.log ('got doc ref:', docRef.path)
+      const docRef = getDocRef(EventType.STALL_EVENT);
       if (!docRef) throw new Error("Failed to get document reference.");
-
+  
       await setDoc(
         docRef,
         {
@@ -87,15 +129,19 @@ const WelcomeCard = ({
         },
         { merge: true }
       );
-
+  
       setVisitorState(VisitorState.ENTER_PASSWORD);
     } catch (error) {
       console.error("Error writing to Firestore:", error);
       alert("Failed to continue. Please check your network and try again.");
     } finally {
-      setLoading(false); // Reset loading state
+      setLoading(false);
     }
   };
+  
+
+
+  console.log ('rendering WElcomeCard with avatarState:', avatarState)
 
   return (
     <Paper
@@ -132,12 +178,13 @@ const WelcomeCard = ({
         variant="standard"
         fullWidth
         value={avatarState.name}
-        onChange={(e) =>
+        onChange={(e) => {
+          console.log ("Got Input event:", e);
           setAvatarState({
             ...avatarState,
             name: e.target.value,
           })
-        }
+        }}
         sx={{
           mt: 2,
           mb: 3,

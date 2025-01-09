@@ -1,37 +1,40 @@
-import { Box, Button, Grid, Grid2, Typography } from "@mui/material";
+import { Box, Button, Grid, Typography } from "@mui/material";
 import KeyboardDoubleArrowLeftOutlinedIcon from "@mui/icons-material/KeyboardDoubleArrowLeftOutlined";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useState, useMemo } from "react";
 import { AvatarState, VisitorState } from "@/pages/welcome";
 import Image from "next/image";
 import { commonStyles } from "@/sharedStyles";
-import RequestCharacterCreationModal from "./RequestCharacterCreationModal";
 
 interface EnterPasswordProps {
-  avatarState: AvatarState
-  visitorState: VisitorState
-  setAvatarState: Dispatch<SetStateAction<AvatarState>>
-  setVisitorState: Dispatch<SetStateAction<VisitorState>>
+  avatarState: AvatarState;
+  setAvatarState: Dispatch<SetStateAction<AvatarState>>;
+  setVisitorState: Dispatch<SetStateAction<VisitorState>>;
 }
 
 interface PasswordState {
-  animal: string
-  element: string
-  item: string
-  power: string
+  animal: string;
+  element: string;
+  item: string;
+  power: string;
 }
 
-export const animals = ["hawk", "owl", "dolphin"]
-export const elements = ["fire", "water", "air", "earth"]
-export const items  = ["key", "compass", "shield"]
-export const powers = [
-    "compass-gear", "compass-heart", "compass-wealth",
-    "key-gear", "key-health", "key-wealth",
-    "shield-health", "shield-resistance", "shield-wealth",
-  ]
+const options = {
+  animal: ["hawk", "owl", "dolphin"],
+  element: ["fire", "water", "air", "earth"],
+  item: ["key", "compass", "shield"],
+  power: [
+    "wealth",
+    "heart",
+    "health",
+    "resistance",
+    "gear"
+  ],
+}
 
-
-const WelcomeMessage = ({ avatarState, setAvatarState, visitorState, setVisitorState }: EnterPasswordProps) => {
-
+const EnterPassword = ({
+  avatarState,
+  setVisitorState,
+}: EnterPasswordProps) => {
   const [password, setPassword] = useState<PasswordState>({
     animal: "hawk",
     element: "fire",
@@ -39,180 +42,159 @@ const WelcomeMessage = ({ avatarState, setAvatarState, visitorState, setVisitorS
     power: "wealth",
   });
 
-  const images: Record<keyof PasswordState, string[]> = {
-    animal: 
-        animals
-        .reduce (
-            (acc, animal) => {
-                acc.push (`/images/animal/${animal}.png`)
-                return acc
-            }, 
-            [] as string []
-        ),
-    element: 
-        elements
-        .reduce (
-            (acc, element) => {
-                acc.push (`/images/element/${element}.jpg`)
-                return acc
-            }, 
-            [] as string []
-        ),
-    item:
-        items
-        .reduce (
-            (acc, item) => {
-                acc.push (`/images/item/${item}.png`)
-                return acc
-            }, 
-            [] as string []
-        ),
-    power: 
-        powers
-        .reduce (
-            (acc, power) => {
-                acc.push (`/images/power/${power}.jpg`)
-                return acc
-            }, 
-            [] as string []
-        ),
-  };
+  // Memoize pre-generated image paths
+  const images = useMemo(
+    () =>
+      Object.fromEntries(
+        Object.entries(options).map(([key, values]) => [
+          key,
+          values.map((value) => `/images/${key}/${value}.jpg`),
+        ])
+      ) as Record<keyof PasswordState, string[]>,
+    []
+  );
 
+  // Optimized thumbnail click handler
   const handleThumbnailClick = (type: keyof PasswordState) => {
     setPassword((prevPassword) => {
-      const imageArray = images[type];
-      const currentIndex = imageArray.findIndex((img) => img.includes(prevPassword[type]));
-      const nextIndex = (currentIndex + 1) % imageArray.length;
-  
-      return {
-        ...prevPassword,
-        [type]: imageArray[nextIndex],
-      };
+      const currentIndex = images[type].findIndex((img) =>
+        img.includes(prevPassword[type])
+      );
+      const nextIndex = (currentIndex + 1) % images[type].length;
+
+      return { ...prevPassword, [type]: options[type][nextIndex] };
     });
   };
-    
 
   return (
-    <Box sx={{ display:'flex', flexDirection:'column', textAlign: "center", width:'100%' }}>
-      <KeyboardDoubleArrowLeftOutlinedIcon 
-        onClick={() => {console.log ('clicked'); setVisitorState(VisitorState.ENTER_NAME)}} 
-        sx={{ 
-          position:'absolute',
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        textAlign: "center",
+        width: "100%",
+      }}
+    >
+      {/* Back Button */}
+      <KeyboardDoubleArrowLeftOutlinedIcon
+        onClick={() => setVisitorState(VisitorState.ENTER_NAME)}
+        sx={{
+          position: "absolute",
           top: 10,
           left: 10,
-          fontSize: 32,
-          cursor: "pointer" ,
-          color:'white',
+          fontSize: 28,
+          cursor: "pointer",
+          color: "white",
           zIndex: 10,
-        }} 
+        }}
       />
+
+      {/* Welcome Message */}
       <Box
         sx={{
           alignSelf: "center",
-          display: 'flex',
-          flexDirection:'column',
-          justifyContent: 'center',
-          alignItems: 'center',
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
           borderRadius: 4,
           padding: 1,
-          width: '90%',  // Full width
-          backgroundColor: commonStyles.colors.parchment, // Brown background
-          background: `linear-gradient(145deg, ${commonStyles.colors.parchment}, ${commonStyles.colors.darkBrown})`, // Gradient background
-          boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.2)', // Drop shadow for depth
-          mb: 1
+          width: "90%",
+          background: `linear-gradient(145deg, ${commonStyles.colors.parchment}, ${commonStyles.colors.darkBrown})`,
+          mb: 1,
         }}
       >
-        <Typography 
-          // fontWeight={'bold'} 
-          fontSize={25} 
-          fontFamily={'monospace'}
-          fontWeight={'bold'}
-          sx={{ 
-            textAlign: "center", 
-            color: commonStyles.colors.darkBrown,
-            // textShadow: '2px 2px 5px rgba(0, 0, 0, 0.5)',
-            transition: 'transform 0.3s ease-in-out, box-shadow 0.2s ease-in-out',
-          }}
+        <Typography
+          fontSize={20}
+          fontFamily="monospace"
+          fontWeight="bold"
+          sx={{ textAlign: "center", color: commonStyles.colors.darkBrown }}
         >
-          {`hello, ${avatarState.name}!`}
+          {`Hello, ${avatarState.name}!`}
         </Typography>
       </Box>
-        
-        <Box sx={{
+
+      {/* Password Selection */}
+      <Box
+        sx={{
           borderRadius: 4,
-          // maxWidth: '80%',  // Full width
-          padding: '20px', // Give enough padding for the text
-          backgroundColor: commonStyles.colors.brown, // Brown background
-          background: `linear-gradient(145deg, ${commonStyles.colors.brown}, ${commonStyles.colors.darkBrown})`, // Gradient background
-          // boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.2)', // Drop shadow for depth
+          padding: "20px",
+          background: `linear-gradient(145deg, ${commonStyles.colors.brown}, ${commonStyles.colors.darkBrown})`,
           mb: 2,
           ml: 2,
           mr: 2,
-          border: `2px solid ${commonStyles.colors.darkBrown}`
-        }}>
-          <Typography
-            fontSize={20} 
-            sx={{
-              fontFamily: "monospace",
-              color: "white",
-              textShadow: "2px 4px 8px rgba(0, 0, 0, 0.6)",
-              padding: "10px",
-              borderRadius: "8px",
-              // boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.5)",
-              transform: "translateY(-2px)"
-            }}
-          >
-            Enter Password:
-          </Typography>
-          
-          <Grid2 container spacing={2} justifyContent="center" mt={2}>
-            {Object.keys(password).map((key) => (
-              <Grid item xs={4} key={key}>
-                <Box
-                  sx={{
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    overflow: 'hidden',
-                    boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.2)', // Drop shadow for depth
-                  }}
-                  onClick={() => handleThumbnailClick(key as keyof PasswordState)}
-                >
-                  <Image
-                    src={images[key as keyof PasswordState].find((img) => img.includes(password[key as keyof PasswordState])) || ""}
-                    alt="Password Thumbnail"
-                    width={120}
-                    height={120}
-                  />
-                </Box>
-              </Grid>
-            ))}
-          </Grid2>
-        </Box>
+          border: `2px solid ${commonStyles.colors.darkBrown}`,
+        }}
+      >
+        <Typography
+          fontSize={18}
+          sx={{
+            fontFamily: "monospace",
+            color: "white",
+            textShadow: "1px 2px 4px rgba(0, 0, 0, 0.4)",
+          }}
+        >
+          Enter Password:
+        </Typography>
 
+        {/* Thumbnails */}
+        <Grid container spacing={2} justifyContent="center" mt={2}>
+          {Object.keys(password).map((key) => (
+            <Grid item xs={6} key={key}>
+              <Box
+                sx={{
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  overflow: "hidden",
+                  boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.15)",
+                }}
+                onClick={() => handleThumbnailClick(key as keyof PasswordState)}
+              >
+                <Image
+                  src={images[key as keyof PasswordState].find((img) =>
+                    img.includes(password[key as keyof PasswordState])
+                  ) || ""}
+                  alt={`${key} thumbnail`}
+                  width={100} // Reduced size for weaker devices
+                  height={100} // Reduced size for weaker devices
+                  loading="lazy" // Lazy load images
+                />
+              </Box>
+            </Grid>
+          ))}
+        </Grid>
+      </Box>
+
+      {/* Login Button */}
       <Button
-        variant={ avatarState.name ? "contained" :"text"}
-        onClick={() => {setVisitorState (VisitorState.ENTER_PASSWORD)}} 
-        disabled={!avatarState.name} 
-        sx={{ alignSelf:'center', justifySelf: 'center', mt: 2, backgroundColor: avatarState.name ? commonStyles.colors.accent : 'none', maxWidth: '80%' }}
+        variant={avatarState.name ? "contained" : "text"}
+        onClick={() => setVisitorState(VisitorState.ENTER_PASSWORD)}
+        disabled={!avatarState.name}
+        sx={{
+          alignSelf: "center",
+          mt: 2,
+          backgroundColor: avatarState.name ? commonStyles.colors.accent : "none",
+          maxWidth: "80%",
+        }}
       >
         Login
       </Button>
 
+      {/* Password Not Available */}
       <Typography
-        fontFamily={'monospace'} 
+        fontFamily="monospace"
         variant="caption"
         sx={{
           mt: 2,
           cursor: "pointer",
-          color: 'white',
+          color: "white",
         }}
-        onClick={() => {setVisitorState (VisitorState.CHARACTER_CREATION_PROMPTED)}} 
+        onClick={() => setVisitorState(VisitorState.CHARACTER_CREATION_PROMPTED)}
       >
         I don’t have a password yet
       </Typography>
-
     </Box>
   );
 };
 
-export default WelcomeMessage;
+export default EnterPassword;

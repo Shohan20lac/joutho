@@ -3,20 +3,10 @@ import { Button, Box, Paper, Typography } from "@mui/material";
 import { useRouter } from "next/router";
 import { stallStyles } from "@/sharedStyles";
 
-const detectDeviceType = () => {
-  const ua = navigator.userAgent;
-  if (/mobile/i.test(ua)) return "tablet";
-  if (/iPad|Android|Tablet/i.test(ua)) return "tablet";
-  if (/Windows|Macintosh|Linux/i.test(ua)) return "admin";
-  return "monitor"; // Default fallback for desktops
-}
-
 type DeviceName = "tablet" | "monitor" | "admin";
 
 export default function StallSelector() {
   const router = useRouter()
-    
-  
 
   return (
     <Box
