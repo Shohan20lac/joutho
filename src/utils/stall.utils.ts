@@ -1,5 +1,6 @@
 import { StallConstants } from "@/const/stall.const";
 import { createHash } from "crypto";
+import { AdminsMap, VisitorsMap } from ".";
 
 
 export type ItemType = "key" | "shield" | "compass";

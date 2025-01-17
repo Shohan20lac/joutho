@@ -1,16 +1,14 @@
 import { useEffect, useState, useMemo } from "react";
 import { Box, Typography } from "@mui/material";
 import { commonStyles } from "@/sharedStyles";
-import { Animal, Element, Item, Power } from "@/const/avatar.const";
 import WelcomeCard from "@/components/Welcome/WelcomeCard";
 import EnterPassword from "@/components/Welcome/EnterPassword";
-import RequestCharacterCreationModal from "@/components/Welcome/RequestCharacterCreationModal";
-import CharacterCreation from "@/components/CharacterCreation";
-import { io } from "socket.io-client";
-
+import RequestCharacterCreationModal from "@/components/CharacterCreation/Requested";
+import CharacterCreation from "@/components/CharacterCreation/Ongoing";
+import { io, Socket } from "socket.io-client";
 import { socketUrl } from "../../../socketConfig"
-import { SelectionState } from "@/utils/selection.utils";
-import { VisitorState } from "@/utils/visitor.utils";
+import { SelectionState, Visitor, VisitorState } from "@/utils";
+import { EventConstant } from "@/const/event.const";
 
 export interface CharacterCreationState {
   animal:  SelectionState
@@ -19,84 +17,77 @@ export interface CharacterCreationState {
   power:   SelectionState
 }
 
-export interface AvatarState {
-  name: string;
-  animal: Animal | "";
-  element: Element | "";
-  item: Item | "";
-  power: Power | "";
-}
-
 export enum EventName {
   STALL_ACTIVITY_CHANGED = "stallActivityChanged",
 }
 
 export default function Welcome() {
 
-  const [socket, setSocket] = useState<ReturnType<typeof io> | null>(null);
-
-  const [visitorState, setVisitorState] = useState<VisitorState>(VisitorState.ENTER_NAME);
-
-  const [avatarState, setAvatarState] = useState<AvatarState>({
+  const [socket, setSocket] = useState<Socket | null>(null)
+  const [visitor, setVisitor] = useState<Visitor>({
+    id: Math.random().toString(),
     name: "",
-    animal: "",
-    element: "",
-    item: "",
-    power: "",
+    visitorState: VisitorState.ENTER_NAME,
+    avatarState: {
+      animal:  { value: null, selectionState: SelectionState.IDLE },
+      element: { value: null, selectionState: SelectionState.IDLE },
+      item:    { value: null, selectionState: SelectionState.IDLE },
+      power:   { value: null, selectionState: SelectionState.IDLE },
+    }
   });
 
-  // Memoize background color to prevent unnecessary recalculations
   const backgroundColor = useMemo(() => {
-    switch (visitorState) {
+    switch (visitor.visitorState) {
       case VisitorState.ENTER_NAME: return commonStyles.colors.darkBrown;
       
       default: return commonStyles.colors.lightBrown;
     }
-  }, [visitorState])
-
-  // useEffect(() => {
-  //   const visitorStateListener = createSnapshotListener ({
-  //     eventType: EventType.STALL_EVENT,
-  //     eventName: EventName.STALL_ACTIVITY_CHANGED,
-  //     onTrigger: (newVisitorState: VisitorState) => setVisitorState(newVisitorState),
-  //   });
-
-  //   return () => {
-  //     if (visitorStateListener) {
-  //       visitorStateListener();
-  //     }
-  //   };
-  // }, []);
+  }, [visitor.visitorState])
 
   useEffect (() => {
     const newSocket = io (socketUrl)
     setSocket (newSocket)
 
+    return () => {
+      socket?.disconnect()
+    }
   },[])
 
   const renderContent = useMemo (
     () => 
-      visitorState === VisitorState.ENTER_NAME ?
+      visitor.visitorState === VisitorState.ENTER_NAME ?
         <WelcomeCard
-          avatarState={avatarState}
-          setAvatarState={setAvatarState}
-          setVisitorState={setVisitorState}
+          visitor={visitor}
+          setVisitor={setVisitor}
         /> :
-      visitorState ===  VisitorState.ENTER_PASSWORD ?
+      visitor.visitorState ===  VisitorState.ENTER_PASSWORD ?
         <EnterPassword
-          avatarState={avatarState}
-          setAvatarState={setAvatarState}
-          setVisitorState={setVisitorState}
+          visitor={visitor}
+          setVisitor={setVisitor}
         /> :
-      visitorState === VisitorState.CHARACTER_CREATION_ONGOING ? 
+      visitor.visitorState === VisitorState.CHARACTER_CREATION_ONGOING ? 
         <CharacterCreation
-          avatarState={avatarState}
-          setAvatarState={setAvatarState}
+          socket={socket} 
+          visitor={visitor}
+          setVisitor={setVisitor}
         /> :
-      visitorState === VisitorState.CHARACTER_CREATION_SUCCESS ? 
-        <Typography>{`Welcome to the Joutho network, ${avatarState.name}!`}</Typography> :
-      null, 
-    [visitorState, avatarState]
+      visitor.visitorState === VisitorState.CHARACTER_CREATION_SUCCESS ? 
+        <Typography>{`Welcome to the Joutho network, ${visitor.name}!`}</Typography> 
+        
+      :null, 
+    [visitor]
+  )
+
+  useEffect (
+    () => {
+      if (visitor.visitorState === VisitorState.CHARACTER_CREATION_ONGOING){
+        socket?.emit (
+          EventConstant.Stall.Visitor.CAME.NOTIFY,
+          visitor
+        )
+      }
+    },
+    [visitor.visitorState]
   )
 
   return (
@@ -114,10 +105,12 @@ export default function Welcome() {
       {renderContent}
 
       <RequestCharacterCreationModal
-        open={visitorState === VisitorState.CHARACTER_CREATION_PROMPTED}
-        onClose={() => setVisitorState(VisitorState.ENTER_NAME)}
-        visitorName={avatarState.name}
-        setVisitorState={setVisitorState}
+        open={visitor.visitorState === VisitorState.CHARACTER_CREATION_PROMPTED}
+        onClose={() => {
+          console.log ('closed modal')
+        }}
+        visitor={visitor}
+        setVisitor={setVisitor}
       />
     </Box>
   );

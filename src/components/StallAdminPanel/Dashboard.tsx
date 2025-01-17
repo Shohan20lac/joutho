@@ -1,15 +1,28 @@
 import { useEffect, useState } from "react";
-import { Box, Typography, Paper, Grid } from "@mui/material";
+import { Box, Typography, Paper, Grid, Fab } from "@mui/material";
 import { io } from "socket.io-client";
-import { socketUrl } from "../../../socketConfig";
-import { Visitor } from "@/utils/visitor.utils";
+import { generateNewVisitor, StallActivity } from "@/utils";
+import AddIcon from "@mui/icons-material/Add";
+import { EventConstant } from "@/const/event.const";
+
 
 interface StallAdminProps {
   socket: ReturnType<typeof io> | null;
-  visitors: Visitor[]
+  stallActivity: StallActivity;
 }
 
-export default function Dashboard ({ socket, visitors }: StallAdminProps) {
+export default function Dashboard ({ socket, stallActivity }: StallAdminProps) {
+  const handleAddVisitor = () => {
+    if (socket) {
+      socket.emit (
+        EventConstant.Stall.Visitor.CAME.NOTIFY,
+        generateNewVisitor()
+      )
+    } 
+    else
+      console.error("Socket not initialized!")
+  };
+
   return (
     <Box
       sx={{
@@ -18,6 +31,8 @@ export default function Dashboard ({ socket, visitors }: StallAdminProps) {
         gap: 3,
         padding: 2,
         backgroundColor: "#f9f9f9",
+        position: "relative", // For positioning the floating button
+        height: "100vh", // Ensure the box takes the full height for button placement
       }}
     >
       <Typography
@@ -38,7 +53,7 @@ export default function Dashboard ({ socket, visitors }: StallAdminProps) {
           justifyContent: "center",
         }}
       >
-        {visitors.map((visitor) => (
+        {Object.values(stallActivity.visitors).map((visitor) => (
           <Grid
             item
             xs={12}
@@ -78,6 +93,19 @@ export default function Dashboard ({ socket, visitors }: StallAdminProps) {
           </Grid>
         ))}
       </Grid>
+
+      {/* Floating Button */}
+      <Fab
+        color="primary"
+        sx={{
+          position: "absolute",
+          bottom: 16,
+          right: 16,
+        }}
+        onClick={handleAddVisitor}
+      >
+        <AddIcon />
+      </Fab>
     </Box>
   );
 }

@@ -1,6 +1,6 @@
 import { Paper, Typography, TextField, Button, Box } from "@mui/material";
 import { commonStyles } from "@/sharedStyles";
-import { AvatarState, EventName } from "@/pages/welcome";
+import {EventName } from "@/pages/welcome";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import Image from "next/image";
 import { getDocRef } from "@/utils/event.utils";
@@ -12,7 +12,7 @@ import { socketUrl } from "../../../socketConfig";
 import { ADMIN_BYPASS_STRING } from "@/const/system.const";
 import { useRouter } from "next/router";
 import { v4 as uuid } from "uuid";
-import { VisitorState } from "@/utils/visitor.utils";
+import { Visitor, VisitorState } from "@/utils";
 
 // Constants for Text and Labels
 const WELCOME_MESSAGE = "Welcome to Joutho!";
@@ -62,27 +62,30 @@ const getButtonStyle = (enabled: boolean) => ({
 });
 
 interface WelcomeCardProps {
-  avatarState: AvatarState
-  setAvatarState: Dispatch<SetStateAction<AvatarState>>
-  setVisitorState: Dispatch<SetStateAction<VisitorState>>
+  visitor: Visitor
+  setVisitor: Dispatch<SetStateAction<Visitor>>
 }
 
-const WelcomeCard = ({
-  avatarState,
-  setAvatarState,
-  setVisitorState,
-}: WelcomeCardProps) => {
+const WelcomeCard = ({visitor, setVisitor}: WelcomeCardProps) => {
   const [loading, setLoading] = useState(false)
   const [socket, setSocket] = useState<ReturnType<typeof io> | null>(null)
   const router = useRouter();
+  const [visitorName, setVisitorName] = useState<string>('')
+
+  console.log ('@WelcomeCard: setVisitor:', setVisitor)
 
   useEffect (() => {
     const newSocket = io (socketUrl)
     setSocket (newSocket)
   },[])
 
+  useEffect (() => {
+    console.log ('visitor changed:', visitor)
+  },[visitor])
+  
+
   const handleContinue = async () => {
-    if (avatarState.name === ADMIN_BYPASS_STRING) {
+    if (visitor.name === ADMIN_BYPASS_STRING) {
       console.log("Admin bypass detected. Transitioning to admin panel.");
       router.push (
         "/admin",
@@ -123,14 +126,17 @@ const WelcomeCard = ({
           action: EventName.STALL_ACTIVITY_CHANGED,
           data: {
             visitorState: VisitorState.ENTER_PASSWORD,
-            avatarState: avatarState,
+            avatarState: visitor.avatarState,
           },
           timestamp: serverTimestamp(),
         },
         { merge: true }
       );
   
-      setVisitorState(VisitorState.ENTER_PASSWORD);
+      setVisitor ({
+        ...visitor,
+        visitorState: VisitorState.ENTER_PASSWORD,
+      })
     } catch (error) {
       console.error("Error writing to Firestore:", error);
       alert("Failed to continue. Please check your network and try again.");
@@ -173,12 +179,13 @@ const WelcomeCard = ({
       <TextField
         variant="standard"
         fullWidth
-        value={avatarState.name}
+        value={visitor.name} // Initializes with the current value but isn't controlled
         onChange={(e) => {
-          setAvatarState({
-            ...avatarState,
-            name: e.target.value,
-          })
+          console.log('Text field changed:', e.target.value);
+          setVisitor(()=> ({
+            ...visitor,
+            name: e.target.value
+          }))
         }}
         sx={{
           mt: 2,
@@ -189,10 +196,10 @@ const WelcomeCard = ({
 
       {/* Continue Button */}
       <Button
-        variant={avatarState.name ? "contained" : "text"}
+        variant={visitor.name ? "contained" : "text"}
         onClick={handleContinue}
-        disabled={!avatarState.name || loading}
-        sx={getButtonStyle(!!avatarState.name)}
+        disabled={!visitor.name || loading}
+        sx={getButtonStyle(!!visitor.name)}
       >
         {loading ? "Loading..." : "Continue"}
       </Button>

@@ -43,4 +43,4 @@ export const commonStyles = {
         shadow: "rgba(0, 0, 0, 0.4)", // Dark shadow for depth effects
         lightShadow: "rgba(0, 0, 0, 0.2)", // Light shadow for soft UI accents
     }
-};
+}  

@@ -3,9 +3,9 @@ import { Box, Typography, CircularProgress } from "@mui/material";
 import Image from "next/image";
 import { commonStyles } from "@/sharedStyles";
 import { Player } from "@lottiefiles/react-lottie-player";
-import { AvatarState } from "../../admin";
+import { AvatarState } from "../../../utils";
 import { io } from "socket.io-client";
-import { socketUrl } from "../../../../../socketConfig";
+import { socketUrl } from "../../../../socketConfig";
 
 export default function CharacterCreationDone() {
   const [loading, setLoading] = useState(true);

@@ -1,22 +1,32 @@
-import { useState } from "react";
-import WelcomeMonitor from "./Lobby";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import Dashboard from "./Dashboard";
-import { Visitor } from "@/utils/visitor.utils";
 import { io } from "socket.io-client";
 import Lobby from "./Lobby";
+import { StallActivity, Visitor } from "@/utils";
+
 
 interface StallAdminPanelProps {
   socket: ReturnType<typeof io> | null;
-  visitors: Visitor[];
-  selectedStall: string;
+  currentView: string | null;
+  
+  stallActivity: StallActivity;
+  setStallActivity: Dispatch<SetStateAction<StallActivity>>;
+  handleVisitorBadgeClick: (visitor: Visitor) => void;
 }
 
-const StallAdminPanel = ({socket, visitors, selectedStall}: StallAdminPanelProps) => {
-  const [currentView, setCurrentView] = useState<"dashboard" | "monitor">("monitor")
-  
+const StallAdminPanel = ({socket, stallActivity, currentView, setStallActivity, handleVisitorBadgeClick}: StallAdminPanelProps) => {
   return (
-    currentView === "dashboard" ? <Dashboard socket={socket} visitors={visitors}/> :
-    currentView === "monitor"   ? <Lobby socket={socket} visitors={visitors}/>
+    currentView === "dashboard" ? 
+      <Dashboard socket={socket} stallActivity={stallActivity}/> :
+    
+    currentView === "lobby" ? 
+      <Lobby
+        socket={socket}
+        stallActivity={stallActivity}
+        setStallActivity={setStallActivity}
+        handleVisitorBadgeClick={handleVisitorBadgeClick}
+      />
+    
     : <p> unexpected value of currentView </p>
   )
 }

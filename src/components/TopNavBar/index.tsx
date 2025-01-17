@@ -22,7 +22,7 @@ const TopNav = ({selectedTab, onSelectTab}: TopNavBarProps) =>
                 color: selectedTab === "dashboard" ? "green" : "black"
             }}
         >
-            ADM
+            DSHBRD
         </Button>
         <Button
             onClick={() => onSelectTab("lobby")}
@@ -32,7 +32,7 @@ const TopNav = ({selectedTab, onSelectTab}: TopNavBarProps) =>
                 color: selectedTab === "lobby" ? "green" : "black"
             }}
         >
-            MNTR
+            LBY
         </Button>
     </Box>
 

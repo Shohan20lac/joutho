@@ -1,14 +1,13 @@
 import { Box, Button, Grid, Typography } from "@mui/material";
 import KeyboardDoubleArrowLeftOutlinedIcon from "@mui/icons-material/KeyboardDoubleArrowLeftOutlined";
 import { Dispatch, SetStateAction, useState, useMemo } from "react";
-import { AvatarState, VisitorState } from "@/pages/welcome";
 import Image from "next/image";
 import { commonStyles } from "@/sharedStyles";
+import { Visitor, VisitorState } from "@/utils";
 
 interface EnterPasswordProps {
-  avatarState: AvatarState;
-  setAvatarState: Dispatch<SetStateAction<AvatarState>>;
-  setVisitorState: Dispatch<SetStateAction<VisitorState>>;
+  visitor: Visitor
+  setVisitor: Dispatch<SetStateAction<Visitor>>
 }
 
 interface PasswordState {
@@ -31,10 +30,8 @@ const options = {
   ],
 }
 
-const EnterPassword = ({
-  avatarState,
-  setVisitorState,
-}: EnterPasswordProps) => {
+const EnterPassword = ({visitor, setVisitor}: EnterPasswordProps) => {
+
   const [password, setPassword] = useState<PasswordState>({
     animal: "hawk",
     element: "fire",
@@ -43,28 +40,25 @@ const EnterPassword = ({
   });
 
   // Memoize pre-generated image paths
-  const images = useMemo(
+  const images = useMemo (
     () =>
-      Object.fromEntries(
+      Object.fromEntries (
         Object.entries(options).map(([key, values]) => [
           key,
           values.map((value) => `/images/${key}/${value}.jpg`),
         ])
       ) as Record<keyof PasswordState, string[]>,
     []
-  );
+  )
 
-  // Optimized thumbnail click handler
   const handleThumbnailClick = (type: keyof PasswordState) => {
-    setPassword((prevPassword) => {
-      const currentIndex = images[type].findIndex((img) =>
-        img.includes(prevPassword[type])
-      );
-      const nextIndex = (currentIndex + 1) % images[type].length;
-
+    setPassword ((prevPassword) => {
+      const currentIndex = options[type].indexOf(prevPassword[type]);
+      const nextIndex = (currentIndex + 1) % options[type].length;
       return { ...prevPassword, [type]: options[type][nextIndex] };
-    });
-  };
+    })
+  }
+  
 
   return (
     <Box
@@ -77,7 +71,12 @@ const EnterPassword = ({
     >
       {/* Back Button */}
       <KeyboardDoubleArrowLeftOutlinedIcon
-        onClick={() => setVisitorState(VisitorState.ENTER_NAME)}
+        onClick={() => 
+          setVisitor ({
+            ...visitor,
+            visitorState: VisitorState.ENTER_NAME,
+          })
+        }
         sx={{
           position: "absolute",
           top: 10,
@@ -110,7 +109,7 @@ const EnterPassword = ({
           fontWeight="bold"
           sx={{ textAlign: "center", color: commonStyles.colors.darkBrown }}
         >
-          {`Hello, ${avatarState.name}!`}
+          {`Hello, ${visitor.name}!`}
         </Typography>
       </Box>
 
@@ -151,13 +150,11 @@ const EnterPassword = ({
                 onClick={() => handleThumbnailClick(key as keyof PasswordState)}
               >
                 <Image
-                  src={images[key as keyof PasswordState].find((img) =>
-                    img.includes(password[key as keyof PasswordState])
-                  ) || ""}
+                  src={`/images/${key}/${password[key as keyof PasswordState]}.jpg`}
                   alt={`${key} thumbnail`}
-                  width={100} // Reduced size for weaker devices
-                  height={100} // Reduced size for weaker devices
-                  loading="lazy" // Lazy load images
+                  width={100}
+                  height={100}
+                  loading="lazy"
                 />
               </Box>
             </Grid>
@@ -167,20 +164,22 @@ const EnterPassword = ({
 
       {/* Login Button */}
       <Button
-        variant={avatarState.name ? "contained" : "text"}
-        onClick={() => setVisitorState(VisitorState.ENTER_PASSWORD)}
-        disabled={!avatarState.name}
+        variant={visitor.name ? "contained" : "text"}
+        onClick={() => setVisitor({
+          ...visitor,
+          visitorState: VisitorState.ENTER_PASSWORD,
+        })}
+        disabled={!visitor.name}
         sx={{
           alignSelf: "center",
           mt: 2,
-          backgroundColor: avatarState.name ? commonStyles.colors.accent : "none",
+          backgroundColor: visitor.name ? commonStyles.colors.accent : "none",
           maxWidth: "80%",
         }}
       >
         Login
       </Button>
 
-      {/* Password Not Available */}
       <Typography
         fontFamily="monospace"
         variant="caption"
@@ -189,7 +188,13 @@ const EnterPassword = ({
           cursor: "pointer",
           color: "white",
         }}
-        onClick={() => setVisitorState(VisitorState.CHARACTER_CREATION_PROMPTED)}
+        onClick={() => {
+          console.log ('about prompt character creation')
+          setVisitor ({
+            ...visitor,
+            visitorState: VisitorState.CHARACTER_CREATION_PROMPTED,
+          })
+        }}
       >
         I don’t have a password yet
       </Typography>

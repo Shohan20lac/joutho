@@ -1,49 +1,76 @@
-import { commonStyles } from "@/sharedStyles"
-import { Visitor } from "@/utils/visitor.utils"
-import { Box, Typography } from "@mui/material"
+import { commonStyles } from "@/sharedStyles";
+import { SelectionState } from "@/utils";
+import { Visitor, VisitorState } from "@/utils";
+import { Box, Typography } from "@mui/material";
+import Image from "next/image";
+import InnerFrame from "./InnerFrame";
+import InnerAnimal from "./InnerAnimal";
+import OuterFrame from "./OuterFrame";
 
 interface VisitorBadgeProps {
-    visitor: Visitor
-    position: { x: number, y: number }
+  visitor: Visitor;
+  onClick: () => void;
 }
 
-const VisitorBadge = ({visitor, position}: VisitorBadgeProps) => {
-    return (
-        <Box
-            key={visitor.id}
-            sx={{
-              position: "absolute",
-              left: `${position.x}px`,
-              top: `${position.y}px`,
-              backgroundColor: "#fff",
-              padding: 2,
-              borderRadius: 4,
-              boxShadow: "0px 4px 6px rgba(0,0,0,0.1)",
-              minWidth: 200,
-              maxWidth: 300,
-              textAlign: "center",
-            }}
-          >
-            <Typography variant="h6" fontWeight="bold" sx={{ color: commonStyles.colors.darkBrown }}>
-              {visitor.name || `Visitor #${visitor.id}`}
-            </Typography>
-            <Typography variant="body2" sx={{ color: "gray", marginTop: 1 }}>
-              {visitor.visitorState}
-            </Typography>
-            <Typography variant="body2" sx={{ color: "gray", marginTop: 1 }}>
-              {visitor.avatarState.animal}
-            </Typography>
-            <Typography variant="body2" sx={{ color: "gray" }}>
-              {visitor.avatarState.element}
-            </Typography>
-            <Typography variant="body2" sx={{ color: "gray" }}>
-              {visitor.avatarState.item}
-            </Typography>
-            <Typography variant="body2" sx={{ color: "gray" }}>
-              {visitor.avatarState.power}
-            </Typography>
-          </Box>
-    )
-}
+const VisitorBadge = ({ visitor, onClick }: VisitorBadgeProps) => {
+  console.log("about to render VisitorBadge with visitor:", visitor);
+  const { name, avatarState } = visitor;
+  const { animal, item } = avatarState;
 
-export default VisitorBadge
+  const outerFrameSrc = `/images/outer/outer.jpg`;
+  const innerFrameSrc = `/images/inner/inner_${item.value}.jpg`;
+  const animalIconSrc = `/images/animal/${animal.value}_${avatarState.element.value ?? 'generic'}.jpg`;
+
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        width: 200,
+        position: "relative",
+      }}
+      onClick={onClick}
+    >
+      <Box
+        sx={{
+          width: 200,
+          height: 200,
+          position: "relative",
+          backgroundColor: "#fff",
+          boxShadow: "0px 4px 6px rgba(0,0,0,0.1)",
+          overflow: "hidden",
+          borderRadius: 2,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <OuterFrame imageSrc={outerFrameSrc} />
+
+        {item.selectionState !== SelectionState.IDLE && (
+          <InnerFrame imageSrc={innerFrameSrc} />
+        )}
+
+        {animal.selectionState !== SelectionState.IDLE && (
+          <InnerAnimal imageSrc={animalIconSrc}/>
+        )}
+      </Box>
+
+      {/* Visitor Name Below the Card */}
+      <Typography
+        variant="h6"
+        sx={{
+          marginTop: 1,
+          color: commonStyles.colors.darkBrown,
+          textAlign: "center",
+          fontWeight: "bold",
+        }}
+      >
+        {name || `Visitor #${visitor.id}`}
+      </Typography>
+    </Box>
+  );
+};
+
+export default VisitorBadge;
