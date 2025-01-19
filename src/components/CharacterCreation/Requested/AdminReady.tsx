@@ -1,19 +1,17 @@
 import { Paper, Typography, Button, Box, Modal } from "@mui/material";
 import { TalkingPillow } from "./TalkingPillow";
-import { recordVoiceMessage } from "./RecordVoiceMessage";
 import { VoiceMessagePopup } from "./VoiceMessagePopup";
 import { useState } from "react";
-import { AudioMessage, TalkingPillowRole, TalkingPillowState, TalkingPillowStatesMap } from "@/types";
+import { AudioMessage, TalkingPillowHolderState, TalkingPillowRole, TalkingPillowState } from "@/types";
 
 interface AdminReadyProps {
     adminName: string;
 }
 
+const {WILL_TALK, IS_TALKING, IS_LISTENING} = TalkingPillowHolderState
+
 const AdminReady = ({ adminName }: AdminReadyProps) => {
-    const [talkingPillowState, setTalkingPillowState] = useState<TalkingPillowStatesMap>({
-        adminPillowState: TalkingPillowState.WILL_TALK,
-        visitorPillowState: TalkingPillowState.IS_LISTENING,
-    });
+    
     const [voiceMessages, setVoiceMessages] = useState<AudioMessage[]>([]);
     const [currentPlayingMessage, setCurrentPlayingMessage] = useState<number | null>(null);
 
@@ -48,7 +46,7 @@ const AdminReady = ({ adminName }: AdminReadyProps) => {
             <Typography variant="h6">
                 {
                     
-                    talkingPillowState.adminPillowState === TalkingPillowState.IS_TALKING
+                    talkingPillowState.adminPillowState === IS_TALKING
                     ? `${adminName} is talking...`
                     : "Waiting for response..."
                 }

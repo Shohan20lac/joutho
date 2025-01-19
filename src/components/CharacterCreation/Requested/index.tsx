@@ -1,17 +1,12 @@
-import { Paper, Typography, Button, Box, Modal } from "@mui/material";
+import { Paper, Typography, Button, Box, Modal, Avatar } from "@mui/material";
 import { Dispatch, SetStateAction, useState } from "react";
 import { commonStyles } from "@/sharedStyles";
-import { Visitor, VisitorState, UserStatus } from "@/utils";
-import Bubble from "./Bubble";
+import { Visitor, VisitorState } from "@/utils";
+import { RequestCharacterCreationConstant } from "@/const/request.character.creation.const";
+import { RequestCharacterCreationState, TalkingPillowHolderState, TalkingPillowState } from "@/types";
+import TalkingPillow from "./TalkingPillow";
 import { PromptStart } from "./PromptStart";
-import { WaitingForAdmin } from "./WaitingForAdmin";
-import AdminReady from "./AdminReady";
-
-export enum RequestCharacterCreationState {
-  PROMPT_START = "promptStart",
-  WAITING_FOR_ADMIN = "waitingForAdmin",
-  ADMIN_READY = "adminReady",
-}
+import { Communicator } from "./Communicator";
 
 interface RequestCharacterCreationModalProps {
   open: boolean;
@@ -20,16 +15,36 @@ interface RequestCharacterCreationModalProps {
   setVisitor: Dispatch<SetStateAction<Visitor>>;
 }
 
-interface AdminState {
-  name: string;
-}
+const { PROMPT_START, WAITING_FOR_ADMIN, ADMIN_READY } = RequestCharacterCreationState;
+const { WILL_TALK, IS_LISTENING } = TalkingPillowHolderState;
 
-const RequestCharacterCreationModal = ({open, onClose, visitor, setVisitor}: RequestCharacterCreationModalProps) => {
-  const [requestCharacterCreationState, setRequestCharacterCreationState] = useState<RequestCharacterCreationState> (RequestCharacterCreationState.PROMPT_START)
-  const [adminState] = useState<AdminState> ({ name: "shohan" })
 
-  const handleYes = () => setRequestCharacterCreationState (RequestCharacterCreationState.WAITING_FOR_ADMIN)
-  const handleNo  = () => setVisitor ({...visitor, visitorState: VisitorState.ENTER_PASSWORD})
+
+
+
+const RequestCharacterCreationModal = ({open, onClose, visitor, setVisitor, }: RequestCharacterCreationModalProps) => {
+  const [requestCharacterCreationState, setRequestCharacterCreationState] = useState<RequestCharacterCreationState>(RequestCharacterCreationState.PROMPT_START)
+  const [talkingPillowState, setTalkingPillowState] = useState<TalkingPillowState | null>(null)
+
+  const handleYes = () => {
+    setRequestCharacterCreationState(RequestCharacterCreationState.WAITING_FOR_ADMIN);
+    setTalkingPillowState({ admin: WILL_TALK, visitor: IS_LISTENING });
+  }
+
+  const handleNo = () => setVisitor ({ ...visitor, visitorState: VisitorState.ENTER_PASSWORD });
+
+  const header    = RequestCharacterCreationConstant.Modal[requestCharacterCreationState].Header;
+  const subHeader = RequestCharacterCreationConstant.Modal[requestCharacterCreationState].SubHeader("admin123");
+  const body      = RequestCharacterCreationConstant.Modal[requestCharacterCreationState].Body;
+  const subtitle  =
+    requestCharacterCreationState === ADMIN_READY
+    ? 
+      RequestCharacterCreationConstant
+      .Modal[requestCharacterCreationState]
+      .Subtitle[`admin: ${talkingPillowState?.admin} visitor: ${talkingPillowState?.visitor}`]
+        ("admin123")
+    : 
+      RequestCharacterCreationConstant.Modal[requestCharacterCreationState].Subtitle;
 
   return (
     <Modal
@@ -48,21 +63,20 @@ const RequestCharacterCreationModal = ({open, onClose, visitor, setVisitor}: Req
           margin: "10px",
         }}
       >
+        <Typography>{header}</Typography>
+        <Typography>{subHeader}</Typography>
+        <Typography>{body}</Typography>
+
         {
-            requestCharacterCreationState === RequestCharacterCreationState.PROMPT_START ?
-                <PromptStart onYes={handleYes} onNo={handleNo} /> :
-            
-            requestCharacterCreationState === RequestCharacterCreationState.WAITING_FOR_ADMIN ?
-                <WaitingForAdmin /> :
-            
-            requestCharacterCreationState === RequestCharacterCreationState.ADMIN_READY ?
-                <AdminReady adminName={adminState.name} /> :
-            
-            null
+          requestCharacterCreationState === PROMPT_START
+          ? <PromptStart onYes={handleYes} onNo={handleNo} />
+          : <Communicator talkingPillowState={talkingPillowState} setTalkingPillowState={setTalkingPillowState}/>
         }
+
+        {subtitle && <Typography>{subtitle}</Typography>}
       </Paper>
     </Modal>
-  )
-}
+  );
+};
 
-export default RequestCharacterCreationModal
+export default RequestCharacterCreationModal;

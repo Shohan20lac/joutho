@@ -1,10 +1,11 @@
 import { Box, Button } from "@mui/material";
 import { Dispatch, SetStateAction } from "react";
 import React from "react";
+import { AdminPageScreen } from "../AdminPageUI";
 
 interface TopNavBarProps {
     selectedTab: "dashboard" | "lobby" | null
-    onSelectTab: Dispatch<SetStateAction<"dashboard" | "lobby" | null>>
+    onSelectTab: Dispatch <SetStateAction<AdminPageScreen>>
 }
 
 const TopNav = ({selectedTab, onSelectTab}: TopNavBarProps) =>
@@ -16,7 +17,7 @@ const TopNav = ({selectedTab, onSelectTab}: TopNavBarProps) =>
         }}
         >
         <Button
-            onClick={() => onSelectTab("dashboard")}
+            onClick={() => onSelectTab(AdminPageScreen.DASHBOARD)}
             sx={{
                 fontWeight: selectedTab === "dashboard" ? "bold" : "normal",
                 color: selectedTab === "dashboard" ? "green" : "black"
@@ -25,7 +26,7 @@ const TopNav = ({selectedTab, onSelectTab}: TopNavBarProps) =>
             DSHBRD
         </Button>
         <Button
-            onClick={() => onSelectTab("lobby")}
+            onClick={() => onSelectTab(AdminPageScreen.LOBBY)}
             color="inherit"
             sx={{
                 fontWeight: selectedTab === "lobby" ? "bold" : "normal",

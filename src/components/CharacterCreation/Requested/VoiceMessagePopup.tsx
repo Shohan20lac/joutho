@@ -1,5 +1,8 @@
-import { AudioMessage, TalkingPillowState } from "@/types";
-import { Box, Button, Typography } from "@mui/material";
+import { AudioMessage } from "@/types";
+import { Box, IconButton, Typography } from "@mui/material";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import PauseIcon from "@mui/icons-material/Pause";
+import StopIcon from "@mui/icons-material/Stop";
 
 interface VoiceMessagePopupProps {
     message: AudioMessage;
@@ -8,22 +11,21 @@ interface VoiceMessagePopupProps {
     onStop: () => void;
 }
 
-export const VoiceMessagePopup = ({
-    message,
-    onPlay,
-    isPlaying,
-    onStop,
-}: VoiceMessagePopupProps) => {
+export const VoiceMessagePopup = ({message, onPlay, isPlaying, onStop}: VoiceMessagePopupProps) => {
     return (
         <Box sx={{ marginBottom: 2 }}>
             <Typography variant="body1">
-                {message.sender === TalkingPillowState.IS_TALKING ? "Admin" : "Visitor"}'s Voice Message
+                {message.sender}'s Voice Message
             </Typography>
             <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-                <Button variant="contained" onClick={onPlay}>
-                    {isPlaying ? "Pause" : "Play"}
-                </Button>
-                {isPlaying && <Button variant="contained" onClick={onStop}>Stop</Button>}
+                <IconButton color="primary" onClick={onPlay}>
+                    {isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
+                </IconButton>
+                {isPlaying && (
+                    <IconButton color="secondary" onClick={onStop}>
+                        <StopIcon />
+                    </IconButton>
+                )}
             </Box>
         </Box>
     );

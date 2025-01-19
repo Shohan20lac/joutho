@@ -1,4 +1,4 @@
-export const recordVoiceMessage = async () => {
+export const recordVoiceMessage = async (onFinishRecording: () => void) => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     const mediaRecorder = new MediaRecorder(stream);
     const audioChunks: Blob[] = [];
@@ -9,8 +9,8 @@ export const recordVoiceMessage = async () => {
   
     mediaRecorder.onstop = () => {
       const audioBlob = new Blob(audioChunks, { type: "audio/mpeg" });
-      setVoiceMessages((prev) => [...prev, { sender: talkingPillowState, audio: audioBlob }]);
-    };
+      onFinishRecording()
+    }
   
     mediaRecorder.start();
   

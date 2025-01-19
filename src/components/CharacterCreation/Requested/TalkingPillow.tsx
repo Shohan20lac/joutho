@@ -1,43 +1,50 @@
-import { TalkingPillowState } from "@/types";
-import { Box, Button, Typography } from "@mui/material";
+import { Box } from "@mui/material";
+import { TalkingPillowHolderState, TalkingPillowState } from "@/types";
 
-interface TalkingPillowProps {
-    role: "admin" | "visitor";
-    state: TalkingPillowState;
-    onChangeState: (newState: TalkingPillowState) => void;
+interface SlidingPillowProps {
+  talkingPillowState: TalkingPillowState | null;
+  onChangeState: (state: TalkingPillowState) => void;
 }
 
-export const TalkingPillow = ({ role, state, onChangeState }: TalkingPillowProps) => {
-    const handleChangeState = () => {
-        if (state === TalkingPillowState.WILL_TALK) {
-            onChangeState(TalkingPillowState.IS_TALKING);
-        } else if (state === TalkingPillowState.IS_TALKING) {
-            onChangeState(TalkingPillowState.IS_LISTENING);
-        } else if (state === TalkingPillowState.IS_LISTENING) {
-            onChangeState(TalkingPillowState.WILL_TALK);
-        }
-    };
+const TalkingPillow = ({ talkingPillowState, onChangeState }: SlidingPillowProps) => {
+    const {WILL_TALK, IS_TALKING} = TalkingPillowHolderState
+    const adminState = talkingPillowState?.admin;
+    const visitorState = talkingPillowState?.visitor;
+  
+    const getPillowPosition = () =>             
+        adminState   === WILL_TALK || adminState   === IS_TALKING ? "85%" :
+        visitorState === WILL_TALK || visitorState === IS_TALKING ? "15%" :
+        "50%"
 
     return (
-        <Box sx={{ marginBottom: 2 }}>
-            <Typography variant="body1">{role === "admin" ? "Admin" : "Visitor"}</Typography>
-            <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-                <Box
-                    sx={{
-                        width: 50,
-                        height: 50,
-                        borderRadius: "50%",
-                        backgroundColor: state === TalkingPillowState.IS_TALKING ? "red" : "gray",
-                    }}
-                />
-                <Button variant="contained" onClick={handleChangeState}>
-                    {state === TalkingPillowState.WILL_TALK
-                        ? "Start Talking"
-                        : state === TalkingPillowState.IS_TALKING
-                        ? "Stop Talking"
-                        : "Listening..."}
-                </Button>
-            </Box>
+        <Box
+        sx={{
+            position: "relative",
+            width: "100%", // Full width of the parent Box
+            height: "50px", // Height of the sliding area
+            margin: "20px 0",
+            backgroundColor: "#f5f5dc", // Neutral background to simulate a dialog stage
+            borderRadius: "25px",
+            overflow: "hidden",
+        }}
+        >
+        {/* Sliding Pillow */}
+        <Box
+            sx={{
+            position: "absolute",
+            top: "50%",
+            left: getPillowPosition(), // Dynamic position based on the logic
+            transform: "translate(-50%, -50%)", // Center the pillow
+            width: "80px",
+            height: "40px",
+            backgroundColor: "#ffd700", // Golden color for the pillow
+            borderRadius: "20px",
+            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+            transition: "left 0.5s ease", // Smooth slide animation
+            }}
+        />
         </Box>
     );
 };
+
+export default TalkingPillow

@@ -47,6 +47,7 @@ export interface TraitState {
 }
 
 export interface AvatarState {
+  pendingTrait: AvatarTrait
   animal:  TraitState
   element: TraitState
   item:    TraitState
@@ -116,7 +117,8 @@ export const generateNewVisitor = (): Visitor => {
         power: {
           value: randomEnumValue(Power),
           selectionState: randomSelectionState(),
-        }
+        },
+        pendingTrait: null,
       }
     }
   }
@@ -153,19 +155,4 @@ export const advanceAvatarState = (avatarState: AvatarState): AvatarState => {
 export interface StallActivity {
   admins:   AdminsMap
   visitors: VisitorsMap
-}
-
-export const getNearestApprovableTrait = (avatarState: AvatarState) => {
-  console.log ('about to get nearest approvable trait for avatarState:', avatarState)
-  return (
-    Object.keys(avatarState).find (
-      (trait) =>
-        avatarState[trait as keyof AvatarState]?.selectionState === SelectionState.REQUESTED
-    ) as keyof typeof avatarState
-  )
-}
-
-export const recordVoiceMessage = (callback: (audioBlob: Blob) => void) => {
-  const audioBlob = new Blob(["audio data"])
-  callback(audioBlob)
 }

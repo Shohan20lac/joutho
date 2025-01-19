@@ -17,7 +17,9 @@ interface StallAdminPanelProps {
 const StallAdminPanel = ({socket, stallActivity, currentView, setStallActivity, handleVisitorBadgeClick}: StallAdminPanelProps) => {
   return (
     currentView === "dashboard" ? 
-      <Dashboard socket={socket} stallActivity={stallActivity}/> :
+      <Dashboard 
+        socket={socket} stallActivity={stallActivity}
+      /> :
     
     currentView === "lobby" ? 
       <Lobby
